@@ -4,6 +4,9 @@ import ApiError from "./app/api-error.js";
 import bookRouter from "./app/routes/book.route.js";
 import staffRouter from "./app/routes/staff.route.js";
 import authRouter from "./app/routes/auth.route.js";
+import authorRouter from "./app/routes/author.route.js";
+import categoryRouter from "./app/routes/category.route.js";
+import publisherRouter from "./app/routes/publisher.route.js";
 
 const app = express();
 //Settting for cors
@@ -21,7 +24,9 @@ app.use(express.json());
 app.use("/api/book", bookRouter);
 app.use("/api/staff", staffRouter);
 app.use("/api/auth", authRouter);
-
+app.use("/api/author", authorRouter);
+app.use("/api/category", categoryRouter);
+app.use("/api/publisher", publisherRouter);
 
 app.get('/', (req, res) => {
     res.json({ message: "Welcome to book lending application" });
