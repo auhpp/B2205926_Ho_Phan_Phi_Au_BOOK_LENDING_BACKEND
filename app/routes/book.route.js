@@ -8,5 +8,9 @@ router.route("/")
     .post(
         uploadParser.array('productImages', 5),
         bookController.create)
+    .get(bookController.findAll)
+
+router.route("/:id")
+    .delete(bookController.deleteBook)
 
 export default router;

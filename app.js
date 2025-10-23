@@ -7,6 +7,7 @@ import authRouter from "./app/routes/auth.route.js";
 import authorRouter from "./app/routes/author.route.js";
 import categoryRouter from "./app/routes/category.route.js";
 import publisherRouter from "./app/routes/publisher.route.js";
+import bookCopyRouter from "./app/routes/bookCopy.route.js";
 
 const app = express();
 //Settting for cors
@@ -27,6 +28,8 @@ app.use("/api/auth", authRouter);
 app.use("/api/author", authorRouter);
 app.use("/api/category", categoryRouter);
 app.use("/api/publisher", publisherRouter);
+app.use("/api/bookCopy", bookCopyRouter);
+
 
 app.get('/', (req, res) => {
     res.json({ message: "Welcome to book lending application" });

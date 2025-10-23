@@ -1,4 +1,5 @@
 import { ObjectId } from "mongodb";
+import PageResponse from "../dto/response/page.response.js";
 
 class BookRepository {
     constructor(client) {

@@ -1,4 +1,5 @@
 import { ObjectId } from "mongodb";
+import PageResponse from "../dto/response/page.response.js";
 
 class BookCopyRepository {
     constructor(client) {
@@ -42,6 +43,14 @@ class BookCopyRepository {
             _id: ObjectId.isValid(id) ? new ObjectId(id) : null
         };
         const result = await this.BookCopy.findOneAndDelete(filter);
+        return result;
+    }
+
+    async deleteMany(bookId) {
+        const filter = {
+            bookId: ObjectId.isValid(bookId) ? new ObjectId(bookId) : null
+        };
+        const result = await this.BookCopy.deleteMany(filter);
         return result;
     }
 
