@@ -57,6 +57,13 @@ class PublisherRepository {
         const result = await this.Publisher.findOneAndDelete(filter);
         return result;
     }
+
+    async findById(id) {
+        const publisher = this.Publisher.findOne({
+            _id: id ? (ObjectId.isValid(id) ? new ObjectId(id) : null) : new ObjectId()
+        });
+        return publisher;
+    }
 }
 
 export default PublisherRepository;

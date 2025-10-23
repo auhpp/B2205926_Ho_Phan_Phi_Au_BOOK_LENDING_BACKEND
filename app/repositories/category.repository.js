@@ -44,6 +44,14 @@ class CategoryRepository {
         return category;
     }
 
+
+    async findById(id) {
+        const category = this.Category.findOne({
+            _id: id ? (ObjectId.isValid(id) ? new ObjectId(id) : null) : new ObjectId()
+        });
+        return category;
+    }
+
     async findAll({ page = 1, limit = 10 }) {
         const skip = (page - 1) * limit;
         const totalItems = await this.Category.countDocuments({});

@@ -50,6 +50,13 @@ class AuthorRepository {
         );
     }
 
+    async findById(id) {
+        const author = this.Author.findOne({
+            _id: id ? (ObjectId.isValid(id) ? new ObjectId(id) : null) : new ObjectId()
+        });
+        return author;
+    }
+
     async delete(id) {
         const filter = {
             _id: ObjectId.isValid(id) ? new ObjectId(id) : null
