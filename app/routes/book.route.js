@@ -12,5 +12,6 @@ router.route("/")
 
 router.route("/:id")
     .delete(bookController.deleteBook)
+    .get(bookController.findById)
 
 export default router;

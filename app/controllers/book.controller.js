@@ -45,3 +45,11 @@ export const deleteBook = async (req, res, next) => {
         );
     }
 }
+
+export const findById = async (req, res, next) => {
+    const bookService = new BookService()
+    const result = await bookService.findById(req.params.id);
+    return res.status(200).json(
+        new ApiReponse("succes", "Find a book success", result)
+    );
+}

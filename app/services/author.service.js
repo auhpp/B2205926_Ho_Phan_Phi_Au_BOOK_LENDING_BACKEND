@@ -15,8 +15,8 @@ class AuthorService {
     }
 
 
-    async findAll({ page = 1, limit = 10 }) {
-        const authors = await this.authorRepository.findAll(page, limit);
+    async findAll() {
+        const authors = await this.authorRepository.findAll();
         return authors;
     }
 

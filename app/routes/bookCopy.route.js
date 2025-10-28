@@ -5,6 +5,8 @@ const router = express.Router();
 
 router.route("/")
     .post(bookCopyController.create)
-    .get(bookCopyController.findAll)
-
+    .get(bookCopyController.findByBookId)
+    
+router.route("/:id")
+    .delete(bookCopyController.deleteBookCopy)
 export default router;

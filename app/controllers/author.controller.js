@@ -11,10 +11,8 @@ export const create = async (req, res, next) => {
 }
 
 export const findAll = async (req, res, next) => {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
     const authorService = new AuthorService();
-    const result = await authorService.findAll({ page: page, limit: limit });
+    const result = await authorService.findAll();
     return res.status(200).json(
         new ApiReponse("succes", "Find all category success", result)
     );

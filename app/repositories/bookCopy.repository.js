@@ -10,7 +10,7 @@ class BookCopyRepository {
         const bookCopy = {
             status: payload.status,
             barCode: payload.barCode,
-            bookId: payload.bookId
+            bookId: new ObjectId(payload.bookId)
         };
 
         Object.keys(bookCopy).forEach(
@@ -54,10 +54,13 @@ class BookCopyRepository {
         return result;
     }
 
-    async findAll({ page = 1, limit = 10 }) {
+    async findAll({ bookId, page = 1, limit = 10 }) {
         const skip = (page - 1) * limit;
-        const totalItems = await this.BookCopy.countDocuments({});
-        const result = await this.BookCopy.find({}).skip(skip).limit(limit).toArray();
+        const filter = {
+            bookId: ObjectId.isValid(bookId) ? new ObjectId(bookId) : null
+        };
+        const totalItems = await this.BookCopy.countDocuments(filter);
+        const result = await this.BookCopy.find(filter).skip(skip).limit(limit).toArray();
         const totalPages = Math.ceil(totalItems / limit);
         return new PageResponse(
             result,
@@ -69,11 +72,17 @@ class BookCopyRepository {
 
     async countByBookId(bookId) {
         const totalBookCopy = await this.BookCopy.countDocuments({
-            bookId: bookId
+            bookId: bookId ? (ObjectId.isValid(bookId) ? new ObjectId(bookId) : null) : new ObjectId()
         });
         return totalBookCopy;
     }
 
+    async findById(id) {
+        const book = this.BookCopy.findOne({
+            _id: id ? (ObjectId.isValid(id) ? new ObjectId(id) : null) : new ObjectId()
+        });
+        return book;
+    }
 }
 
 export default BookCopyRepository;

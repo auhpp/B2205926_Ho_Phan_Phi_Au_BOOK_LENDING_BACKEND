@@ -24,7 +24,7 @@ class BookRepository {
     }
 
     async create(payload) {
-        const book = this.extractData(payload);
+        const book = this.  extractData(payload);
         var _id = payload.id;
         const filter = {
             _id: _id ? (ObjectId.isValid(_id) ? new ObjectId(_id) : null) : new ObjectId()
@@ -44,9 +44,10 @@ class BookRepository {
 
     async delete(id) {
         const filter = {
-            _id: ObjectId.isValid(id) ? new ObjectId(id) : null
+            _id: id ? (ObjectId.isValid(id) ? new ObjectId(id) : null) : new ObjectId()
         };
         const result = await this.Book.findOneAndDelete(filter);
+        console.log("res xoa", result)
         return result;
     }
 
@@ -63,6 +64,12 @@ class BookRepository {
         );
     }
 
+    async findById(id) {
+        const book = this.Book.findOne({
+            _id: id ? (ObjectId.isValid(id) ? new ObjectId(id) : null) : new ObjectId()
+        });
+        return book;
+    }
 }
 
 export default BookRepository;

@@ -52,17 +52,9 @@ class CategoryRepository {
         return category;
     }
 
-    async findAll({ page = 1, limit = 10 }) {
-        const skip = (page - 1) * limit;
-        const totalItems = await this.Category.countDocuments({});
-        const categoris = await this.Category.find({}).skip(skip).limit(limit).toArray();
-        const totalPages = Math.ceil(totalItems / limit);
-        return new PageResponse(
-            categoris,
-            totalItems,
-            totalPages,
-            page
-        );
+    async findAll() {
+        const categories = await this.Category.find({}).toArray();
+        return categories;
     }
     async delete(id) {
         const filter = {

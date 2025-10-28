@@ -5,7 +5,7 @@ import PublisherRepository from "../repositories/publisher.repository.js";
 import MongoDB from "../utils/mongodb.util.js";
 import BookCopyService from "./bookCopy.service.js";
 import { deleteFromCloudinary, uploadFromBuffer } from "./cloudinary.service.js";
-
+import { Status } from "./../enums/status.enum.js";
 class BookService {
     constructor() {
         this.bookRepository = new BookRepository(MongoDB.client);
@@ -22,35 +22,52 @@ class BookService {
             throw new ApiError(400, "Params not valid")
         }
         var imageUrls = [];
+        if (bookData.images && bookData.images.length > 0) {
+            if (Array.isArray(bookData.images)) {
+                imageUrls.push(...bookData.images)
+            }
+            else {
+                imageUrls.push(bookData.images);
+            }
+        }
         if (files || files.length != 0) {
             const uploadPromises = files.map(file => uploadFromBuffer(file));
-            imageUrls = await Promise.all(uploadPromises);
-        }
-        if (bookData.images && bookData.images.length > 0) {
-            imageUrls.push(...bookData.images)
+            imageUrls.push(...(await Promise.all(uploadPromises)));
         }
 
-        const dataToSave = {
+        var dataToSave = {
             ...bookData,
             images: imageUrls
         }
-        const categories = await Promise.all(
-            bookData.categoryIds.map(id => this.categoryRepository.findById(id))
-        );
+        var categories = []
+        if (Array.isArray(bookData.categoryIds)) {
+            categories = await Promise.all(
+                bookData.categoryIds.map(id => this.categoryRepository.findById(id))
+            );
+        }
+        else {
+            categories.push(await this.categoryRepository.findById(bookData.categoryIds));
+        }
 
-        const authors = await Promise.all(
-            bookData.authorIds.map(id => this.authorRepository.findById(id))
-        );
-        const publisher = await this.publisherRepository.findById(bookData.publisherId);
+        var authors = [];
+        if (Array.isArray(bookData.authorIds)) {
+            authors = await Promise.all(
+                bookData.authorIds.map(id => this.authorRepository.findById(id))
+            );
+        }
+        else {
+            authors.push(await this.authorRepository.findById(bookData.authorIds));
+        }
+        var publisher = await this.publisherRepository.findById(bookData.publisherId);
 
         dataToSave.categories = categories;
         dataToSave.authors = authors;
         dataToSave.publisher = publisher;
 
-        const newBook = await this.bookRepository.create(dataToSave);
+        var newBook = await this.bookRepository.create(dataToSave);
 
-        for (var i = 0; i < bookData.bookCopyQuantity; i++) {
-            await this.bookCopyService.create({ status: "active", bookId: newBook._id });
+        if (!bookData.id) {
+            await this.bookCopyService.create({ status: Status.AVAILABLE, bookId: newBook._id, quantity: bookData.bookCopyQuantity });
         }
         return newBook;
     }
@@ -64,13 +81,23 @@ class BookService {
     async delete(id) {
         const book = await this.bookRepository.delete(id);
         await this.bookCopyService.deleteMany(book._id);
-        book.images.forEach(async element => {
+        const deletePromises = book.images.map(element => {
             var start = element.indexOf("book-lending-project");
             const public_id = element.substring(start, element.lastIndexOf('.'));
             console.log(public_id);
-            await deleteFromCloudinary(public_id);
+
+            return deleteFromCloudinary(public_id);
         });
+        await Promise.all(deletePromises);
+        console.log("xoa", id);
         return book
+    }
+
+    async findById(id) {
+        const book = await this.bookRepository.findById(id);
+        const cntBookCopy = await this.bookCopyService.countByBookId(id);
+        book.bookCopyQuantity = cntBookCopy;
+        return book;
     }
 }
 

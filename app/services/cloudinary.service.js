@@ -27,7 +27,10 @@ export const uploadFromBuffer = (file) => {
 
 export const deleteFromCloudinary = async (public_id) => {
     try {
-        const result = await cloudinary.uploader.destroy(public_id);
+        const result = await cloudinary.uploader.destroy(public_id, {
+            invalidate: true
+        });
+        console.log("xoa anh", public_id)
     } catch (error) {
         console.error("Lỗi khi xóa file trên Cloudinary:", error);
         throw error;

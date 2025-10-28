@@ -37,17 +37,9 @@ class AuthorRepository {
         return result;
     }
 
-    async findAll({ page = 1, limit = 10 }) {
-        const skip = (page - 1) * limit;
-        const totalItems = await this.Author.countDocuments({});
-        const result = await this.Author.find({}).skip(skip).limit(limit).toArray();
-        const totalPages = Math.ceil(totalItems / limit);
-        return new PageResponse(
-            result,
-            totalItems,
-            totalPages,
-            page
-        );
+    async findAll() {
+        const result = await this.Author.find({}).toArray();
+        return result;
     }
 
     async findById(id) {

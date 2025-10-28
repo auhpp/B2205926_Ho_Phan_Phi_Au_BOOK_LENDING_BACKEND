@@ -5,7 +5,7 @@ import StaffService from "../services/staff.service.js";
 
 export const create = async (req, res, next) => {
     const staffService = new StaffService();
-    const currentUser = staffService.existedStaff(req.user.userName);
+    const currentUser = staffService.existedStaff(req.userName);
     if (currentUser == null) {
         return next(new ApiError(403, "Forbian"));
     }

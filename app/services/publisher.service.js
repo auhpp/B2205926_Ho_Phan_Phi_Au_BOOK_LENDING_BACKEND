@@ -16,8 +16,8 @@ class PublisherService {
     }
 
 
-    async findAll({ page = 1, limit = 10 }) {
-        const result = await this.publisherRepository.findAll(page, limit);
+    async findAll() {
+        const result = await this.publisherRepository.findAll();
         return result;
     }
 

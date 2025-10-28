@@ -17,8 +17,8 @@ class CategoryService {
     }
 
 
-    async findAll({ page = 1, limit = 10 }) {
-        const categories = await this.categoryRepository.findAll(page, limit);
+    async findAll() {
+        const categories = await this.categoryRepository.findAll();
         return categories;
     }
 

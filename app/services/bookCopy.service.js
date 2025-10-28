@@ -7,20 +7,26 @@ class BookCopyService {
     }
 
     async create(bookCopyRequest) {
-        if (bookCopyRequest.id && (bookCopyRequest.bookId == "" || bookCopyRequest.status == "")) {
+        if (bookCopyRequest.id && (bookCopyRequest.bookId == "" || bookCopyRequest.quantity == "" || bookCopyRequest.status == "")) {
             throw new ApiError(400, "Params not valid")
         }
+        var bookCopies = []
         if (!bookCopyRequest.id) {
-            const bookCopyCount = await this.bookCopyRepository.countByBookId(bookCopyRequest.bookId);
-            var barCode = bookCopyRequest.bookId + "-" + (bookCopyCount + 1);
-            bookCopyRequest.barCode = barCode;
+            var bookCopyCount = await this.bookCopyRepository.countByBookId(bookCopyRequest.bookId);
+            for (let i = 0; i < bookCopyRequest.quantity; i++) {
+                var barCode = bookCopyRequest.bookId + "-" + (bookCopyCount + 1);
+                bookCopyRequest.barCode = barCode;
+                bookCopyCount++;
+                bookCopies.push(await this.bookCopyRepository.create(bookCopyRequest));
+            }
         }
-        const bookCopy = await this.bookCopyRepository.create(bookCopyRequest);
-        return bookCopy;
+        else
+            bookCopies.push(await this.bookCopyRepository.create(bookCopyRequest))
+        return bookCopies;
     }
 
-    async findAll({ page = 1, limit = 10 }) {
-        const bookCopies = await this.bookCopyRepository.findAll(page, limit);
+    async findAll({ bookId, page = 1, limit = 10 }) {
+        const bookCopies = await this.bookCopyRepository.findAll({ bookId, page, limit });
         return bookCopies;
     }
 
@@ -35,6 +41,14 @@ class BookCopyService {
         return book;
     }
 
+    async countByBookId(bookId) {
+        const cnt = await this.bookCopyRepository.countByBookId(bookId);
+        return cnt;
+    }
+    async findById(id) {
+        const book = await this.bookCopyRepository.findById(id);
+        return book;
+    }
 
 }
 
