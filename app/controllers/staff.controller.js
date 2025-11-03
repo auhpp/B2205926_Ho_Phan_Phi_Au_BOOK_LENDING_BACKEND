@@ -1,5 +1,4 @@
 import ApiError from "../api-error.js";
-import StaffRequest from "../dto/request/staff.request.js";
 import ApiReponse from "../dto/response/api.response.js";
 import StaffService from "../services/staff.service.js";
 
@@ -9,8 +8,7 @@ export const create = async (req, res, next) => {
     if (currentUser == null) {
         return next(new ApiError(403, "Forbian"));
     }
-    const staffRequest = new StaffRequest(req.body);
-    const newStaff = await staffService.create(staffRequest);
+    const newStaff = await staffService.create({ userName: req.body.userName, password: req.body.password });
     return res.status(201).json(
         new ApiReponse("succes", "Create a staff success", newStaff)
     );

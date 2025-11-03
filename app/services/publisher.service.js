@@ -25,6 +25,11 @@ class PublisherService {
         const publisher = await this.publisherRepository.delete(id);
         return publisher;
     }
+
+    async findPagination({ page = 1, limit = 10 }) {
+        const publishers = await this.publisherRepository.findPagination({ page, limit });
+        return publishers;
+    }
 }
 
 export default PublisherService;

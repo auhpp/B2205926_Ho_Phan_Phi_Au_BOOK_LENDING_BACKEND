@@ -63,6 +63,19 @@ class CategoryRepository {
         const result = await this.Category.findOneAndDelete(filter);
         return result;
     }
+
+    async findPagination({ page = 1, limit = 10 }) {
+        const skip = (page - 1) * limit;
+        const totalItems = await this.Category.countDocuments({});
+        const result = await this.Category.find({}).skip(skip).limit(limit).toArray();
+        const totalPages = Math.ceil(totalItems / limit);
+        return new PageResponse(
+            result,
+            totalItems,
+            totalPages,
+            page
+        );
+    }
 }
 
 export default CategoryRepository;

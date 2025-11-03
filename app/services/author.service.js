@@ -20,6 +20,11 @@ class AuthorService {
         return authors;
     }
 
+    async findPagination({ page = 1, limit = 10 }) {
+        const authors = await this.authorRepository.findPagination({ page, limit });
+        return authors;
+    }
+
     async delete(id) {
         const author = await this.authorRepository.delete(id);
         return author;

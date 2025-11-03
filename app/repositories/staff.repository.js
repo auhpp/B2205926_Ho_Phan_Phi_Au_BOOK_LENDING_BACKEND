@@ -34,8 +34,25 @@ class StaffRepository {
 
     async create(payload) {
         const staff = this.extractStaffData(payload);
-        const result = await this.Staff.insertOne(staff);
-        return await this.findById(result.insertedId);
+        var _id = payload._id;
+        const filter = {
+            _id: _id ? (ObjectId.isValid(_id) ? new ObjectId(_id) : null) : new ObjectId()
+        };
+
+        const update = {
+            $set: staff
+        }
+        const options = {
+            upsert: true,
+            returnDocument: "after"
+        }
+        const result = await this.Staff.findOneAndUpdate(
+            filter, update, options
+        );
+        return {
+            "userName": result.userName,
+            "_id": result._id
+        };
     }
 }
 

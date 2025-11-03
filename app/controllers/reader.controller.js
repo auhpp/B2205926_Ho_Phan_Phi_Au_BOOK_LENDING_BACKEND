@@ -1,0 +1,21 @@
+import ApiReponse from "../dto/response/api.response.js";
+import ReaderService from "../services/reader.service.js";
+
+export const create = async (req, res, next) => {
+    const readerService = new ReaderService();
+    const newReader = await readerService.create({ userName: req.body.userName, password: req.body.password });
+    return res.status(201).json(
+        new ApiReponse("succes", "Create a reader success", newReader)
+    );
+}
+
+
+export const update = async (req, res, next) => {
+    const userData = req.body;
+    const avatarFile = req.file;
+    const readerService = new ReaderService();
+    const newReader = await readerService.updateInfo(userData, avatarFile);
+    return res.status(201).json(
+        new ApiReponse("succes", "Create a reader success", newReader)
+    );
+}

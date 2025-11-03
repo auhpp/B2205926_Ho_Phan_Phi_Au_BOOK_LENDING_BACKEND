@@ -26,6 +26,11 @@ class CategoryService {
         const category = await this.categoryRepository.delete(id);
         return category;
     }
+
+    async findPagination({ page = 1, limit = 10 }) {
+        const categories = await this.categoryRepository.findPagination({ page, limit });
+        return categories;
+    }
 }
 
 export default CategoryService;

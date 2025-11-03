@@ -8,6 +8,8 @@ import authorRouter from "./app/routes/author.route.js";
 import categoryRouter from "./app/routes/category.route.js";
 import publisherRouter from "./app/routes/publisher.route.js";
 import bookCopyRouter from "./app/routes/bookCopy.route.js";
+import readerRouter from "./app/routes/reader.route.js";
+import bookCartItemRouter from "./app/routes/bookCartItem.route.js";
 
 const app = express();
 //Settting for cors
@@ -29,6 +31,8 @@ app.use("/api/author", authorRouter);
 app.use("/api/category", categoryRouter);
 app.use("/api/publisher", publisherRouter);
 app.use("/api/bookCopy", bookCopyRouter);
+app.use("/api/reader", readerRouter);
+app.use("/api/cart", bookCartItemRouter);
 
 
 app.get('/', (req, res) => {

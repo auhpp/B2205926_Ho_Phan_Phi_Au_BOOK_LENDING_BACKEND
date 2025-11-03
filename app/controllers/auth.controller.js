@@ -8,6 +8,23 @@ export const authenticateAdmin = async (req, res, next) => {
     const authenticationRequest = new AuthenticationRequest(req.body, Role.ADMIN);
     const authResponse = await authenticationService.authenticate(authenticationRequest);
     return res.status(200).json(
-        new ApiReponse("succes", "Create a staff success", authResponse)
+        new ApiReponse("succes", "Authenticate a staff success", authResponse)
+    );
+}
+
+export const authenticateUser = async (req, res, next) => {
+    const authenticationService = new AuthenticationService();
+    const authenticationRequest = new AuthenticationRequest(req.body, Role.USER);
+    const authResponse = await authenticationService.authenticate(authenticationRequest);
+    return res.status(200).json(
+        new ApiReponse("succes", "Authenticate a reader success", authResponse)
+    );
+}
+
+export const getCurrentUser = async (req, res, next) => {
+    const authenticationService = new AuthenticationService();
+    const authResponse = await authenticationService.getCurrentUser({ userName: req.user.userName, role: req.user.role });
+    return res.status(200).json(
+        new ApiReponse("succes", "Get current user success", authResponse)
     );
 }

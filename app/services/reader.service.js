@@ -3,8 +3,9 @@ import ReaderRepository from "../repositories/reader.repository.js";
 import StaffRepository from "../repositories/staff.repository.js";
 import MongoDB from "../utils/mongodb.util.js";
 import bcrypt from 'bcrypt';
+import { uploadFromBuffer } from "./cloudinary.service.js";
 
-class StaffService {
+class ReaderService {
     constructor() {
         this.staffRepository = new StaffRepository(MongoDB.client);
         this.readerRepository = new ReaderRepository(MongoDB.client);
@@ -18,14 +19,20 @@ class StaffService {
         }
         var active = true;
         password = await bcrypt.hash(password, 10);
-        staff = await this.staffRepository.create({ userName: userName, password: password, active: active });
-        return staff;
+        reader = await this.readerRepository.create({ userName: userName, password: password, active: active });
+        return reader;
     }
 
-    async existedStaff(userName) {
-        const currentUser = await this.staffRepository.findByUserName(userName);
-        return currentUser;
+    async updateInfo(payload, avatar) {
+        var imageUrl = undefined;
+        if (avatar != null) {
+            imageUrl = await uploadFromBuffer(avatar);
+        }
+        payload.avatar = imageUrl;
+        const reader = await this.readerRepository.update(payload);
+        return reader;
     }
+
 }
 
-export default StaffService;
+export default ReaderService;

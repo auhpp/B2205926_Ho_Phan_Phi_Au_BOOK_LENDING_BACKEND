@@ -28,7 +28,7 @@ class AuthenticationService {
             var response = new AuthenticationResponse();
             var valid = await bcrypt.compare(authenticationRequest.password, account.password);
             if (valid) {
-                const token = this.generateToken(account.userName);
+                const token = this.generateToken(account._id, account.userName, authenticationRequest.role);
                 response.authenticated = true;
                 response.token = token;
                 return response;
@@ -42,14 +42,30 @@ class AuthenticationService {
         }
     }
 
-    generateToken(userName) {
+    generateToken(id, userName, role) {
         const signerKey = process.env.SIGNER_KEY;
         const options = {
             expiresIn: '3h',
             algorithm: 'HS256'
         }
-        const token = jwt.sign({ userName: userName }, signerKey, options);
+        const token = jwt.sign({ id: id, userName: userName, role: role }, signerKey, options);
         return token;
+    }
+
+    async getCurrentUser({ userName, role }) {
+        var account;
+        if (role == Role.ADMIN) {
+            account = await this.staffRepository.findByUserName(userName);
+        }
+        else {
+            account = await this.readerRepository.findByUserName(userName);
+        }
+        if (account.active) {
+            return account;
+        }
+        else {
+            throw new ApiError(400, "Account not active");
+        }
     }
 
 

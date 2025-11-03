@@ -11,8 +11,17 @@ export const create = async (req, res, next) => {
 }
 
 export const findAll = async (req, res, next) => {
+    var categories = [];
     const categoryService = new CategoryService();
-    const categories = await categoryService.findAll();
+    if (!parseInt(req.query.page) && !parseInt(req.query.limit)) {
+        categories = await categoryService.findAll();
+    }
+    else {
+        const page = parseInt(req.query.page);
+        const limit = parseInt(req.query.limit);
+        categories = await categoryService.findPagination({ page: page, limit: limit });
+    }
+
     return res.status(200).json(
         new ApiReponse("succes", "Find all category success", categories)
     );

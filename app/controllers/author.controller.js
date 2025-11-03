@@ -11,10 +11,19 @@ export const create = async (req, res, next) => {
 }
 
 export const findAll = async (req, res, next) => {
+    var authors = [];
     const authorService = new AuthorService();
-    const result = await authorService.findAll();
+    if (!parseInt(req.query.page) && !parseInt(req.query.limit)) {
+        authors = await authorService.findAll();
+    }
+    else {
+        const page = parseInt(req.query.page);
+        const limit = parseInt(req.query.limit);
+        authors = await authorService.findPagination({ page: page, limit: limit });
+    }
+
     return res.status(200).json(
-        new ApiReponse("succes", "Find all category success", result)
+        new ApiReponse("succes", "Find all author success", authors)
     );
 }
 

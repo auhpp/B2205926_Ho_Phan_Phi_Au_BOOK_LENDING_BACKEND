@@ -56,6 +56,19 @@ class PublisherRepository {
         });
         return publisher;
     }
+
+    async findPagination({ page = 1, limit = 10 }) {
+        const skip = (page - 1) * limit;
+        const totalItems = await this.Publisher.countDocuments({});
+        const result = await this.Publisher.find({}).skip(skip).limit(limit).toArray();
+        const totalPages = Math.ceil(totalItems / limit);
+        return new PageResponse(
+            result,
+            totalItems,
+            totalPages,
+            page
+        );
+    }
 }
 
 export default PublisherRepository;

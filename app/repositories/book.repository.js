@@ -24,7 +24,7 @@ class BookRepository {
     }
 
     async create(payload) {
-        const book = this.  extractData(payload);
+        const book = this.extractData(payload);
         var _id = payload.id;
         const filter = {
             _id: _id ? (ObjectId.isValid(_id) ? new ObjectId(_id) : null) : new ObjectId()
@@ -54,8 +54,28 @@ class BookRepository {
     async findAll({ page = 1, limit = 10 }) {
         const skip = (page - 1) * limit;
         const totalItems = await this.Book.countDocuments({});
-        const result = await this.Book.find({}).skip(skip).limit(limit).toArray();
         const totalPages = Math.ceil(totalItems / limit);
+        const pipeline = [
+            {
+                $lookup: {
+                    from: "BAN_SAO_SACH",
+                    localField: "_id",
+                    foreignField: "bookId",
+                    as: "copies"
+                }
+            },
+            {
+                $addFields: {
+                    bookCopyCount: { $size: "$copies" }
+                }
+            },
+            {
+                $unset: "copies"
+            },
+            { $skip: skip },
+            { $limit: limit }
+        ]
+        const result = await this.Book.aggregate(pipeline).toArray();
         return new PageResponse(
             result,
             totalItems,
