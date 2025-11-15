@@ -4,7 +4,6 @@ import BookCartItemService from "../services/bookCartItem.service.js";
 
 export const create = async (req, res, next) => {
     const bookCartItemService = new BookCartItemService();
-    console.log(req.user.id)
     const bookCartItem = await bookCartItemService.create({
         _id: req.body._id, quantity: req.body.quantity, bookId: req.body.bookId, readerId: req.user.id
 

@@ -13,3 +13,13 @@ export const create = async (req, res, next) => {
         new ApiReponse("succes", "Create a staff success", newStaff)
     );
 }
+
+
+export const findAll = async (req, res, next) => {
+    var staffs = [];
+    const staffService = new StaffService();
+    staffs = await staffService.findAll();
+    return res.status(200).json(
+        new ApiReponse("succes", "Find all staff success", staffs)
+    );
+}

@@ -1,0 +1,116 @@
+import ApiError from "../api-error.js";
+import { BookCopyStatus } from "../enums/bookCopyStatus.enum.js";
+import { Configuration } from "../enums/configuration.enum.js";
+import { LoanDetailStatus } from "../enums/loanDetailStatus.enum.js";
+import { LoanSlipStatus } from "../enums/loanSlipStatus.enum.js";
+import BookCartItemRepository from "../repositories/bookCartItem.repository.js";
+import BookCopyRepository from "../repositories/bookCopy.repository.js";
+import ConfigurationRepository from "../repositories/configuration.repository.js";
+import LoanDetailRepository from "../repositories/loanDetail.repository.js";
+import LoanSlipRepository from "../repositories/loanSlip.repository.js";
+import MongoDB from "../utils/mongodb.util.js";
+
+class LoanSlipService {
+    constructor() {
+        this.loanSlipRepository = new LoanSlipRepository(MongoDB.client);
+        this.bookCopyRepository = new BookCopyRepository(MongoDB.client)
+        this.configurationRepository = new ConfigurationRepository(MongoDB.client)
+        this.loanDetailRepository = new LoanDetailRepository(MongoDB.client);
+        this.cartRepository = new BookCartItemRepository(MongoDB.client);
+    }
+
+    async create(payload) {
+        const maxBorrowLimit = await this.configurationRepository.findByName(Configuration.MAX_BORROW_LIMIT);
+        // Check
+        const readerId = payload.readerId;
+        const books = payload.books;
+        for (var i = 0; i < books.length; i++) {
+            const bookCopyAvailableQuantity = await this.bookCopyRepository.countByBookId(books[i]._id, BookCopyStatus.AVAILABLE);
+            if (bookCopyAvailableQuantity < books[i].quantity) {
+                throw new ApiError(400, "Quantity not enough")
+            }
+        }
+        const loanSlipFound = await this.loanSlipRepository.findByStatus(readerId, LoanSlipStatus.BORROWED);
+        if (loanSlipFound) {
+            throw new ApiError(400, "Have book not return")
+        }
+        const countBookBorrow = await this.loanSlipRepository.countBookByReaderId(readerId, LoanDetailStatus.BORROWED);
+        if (countBookBorrow >= maxBorrowLimit.value) {
+            throw new ApiError(400, "Reader borrow to limit")
+        }
+        const loanSlip = await this.loanSlipRepository.create({
+            borrowedDate: payload.borrowedDate,
+            returnDate: new Date(payload.returnDate),
+            status: payload.status,
+            readerId: payload.readerId,
+            staffId: payload.staffId
+        });
+        var bookCopyRequest = [];
+        for (var i = 0; i < books.length; i++) {
+            const bookCopies = await this.bookCopyRepository.findAll({
+                bookId: books[i]._id, status: BookCopyStatus.AVAILABLE,
+                limit: books[i].quantity, page: 1
+            });
+            if (bookCopies.data.length < books[i].quantity) {
+                throw new ApiError(400, "Quantity not enough")
+            }
+            else {
+                console.log("Book copy", bookCopies)
+                bookCopies.data.forEach(element => {
+                    bookCopyRequest.push(element._id);
+                    element.status = BookCopyStatus.PENDING;
+                    this.bookCopyRepository.create(element);
+                });
+            }
+        }
+        var loanDetails = [];
+        for (var i = 0; i < bookCopyRequest.length; i++) {
+            const loanDetail = await this.loanDetailRepository.create({
+                bookCopyId: bookCopyRequest[i],
+                loanSlipId: loanSlip._id,
+                status: LoanDetailStatus.PENDING
+            })
+            loanDetails.push(loanDetail);
+        }
+        loanSlip.loanDetails = loanDetails;
+        for (var i = 0; i < books.length; i++) {
+            const cart = await this.cartRepository.deleteByBookId(books[i]._id);
+        }
+        return loanSlip;
+    }
+
+
+    async findAll({ page = 1, limit = 10 }) {
+        const loanSlips = await this.loanSlipRepository.findAll(page, limit);
+        return loanSlips;
+    }
+
+
+    async findById(id) {
+        const loanSlip = await this.loanSlipRepository.findById(id);
+        return loanSlip;
+    }
+
+    async update({ status, loanSlipId, staffId }) {
+        try {
+            const loanSlipAfter = await this.loanSlipRepository.create({
+                _id: loanSlipId, status: status, staffId: staffId,
+            });
+            const loanDetailAfters = await this.loanDetailRepository.updateManyByLoanSlipId({ loanSlipId: loanSlipId, status: status });
+            var bookCopyStatus = status;
+            if (status == LoanSlipStatus.REJECTED) {
+                bookCopyStatus = BookCopyStatus.AVAILABLE;
+            }
+            const loanDetails = await this.loanDetailRepository.findAllByLoanSlipId({ loanSlipId: loanSlipId });
+            loanDetails.forEach(element => {
+                this.bookCopyRepository.create({ status: bookCopyStatus, _id: element.bookCopyId })
+            });
+            return true;
+        } catch (error) {
+            throw new ApiError(400, "Error update loan Slip")
+        }
+    }
+
+}
+
+export default LoanSlipService;

@@ -10,7 +10,7 @@ class BookCopyRepository {
         const bookCopy = {
             status: payload.status,
             barCode: payload.barCode,
-            bookId: new ObjectId(payload.bookId)
+            bookId: payload.bookId ? new ObjectId(payload.bookId) : undefined
         };
 
         Object.keys(bookCopy).forEach(
@@ -21,7 +21,7 @@ class BookCopyRepository {
 
     async create(payload) {
         const bookCopy = this.extractData(payload);
-        var _id = payload.id;
+        var _id = payload._id;
         const filter = {
             _id: _id ? (ObjectId.isValid(_id) ? new ObjectId(_id) : null) : new ObjectId()
         };
@@ -54,10 +54,11 @@ class BookCopyRepository {
         return result;
     }
 
-    async findAll({ bookId, page = 1, limit = 10 }) {
+    async findAll({ bookId, status, page = 1, limit = 10 }) {
         const skip = (page - 1) * limit;
         const filter = {
-            bookId: ObjectId.isValid(bookId) ? new ObjectId(bookId) : null
+            bookId: ObjectId.isValid(bookId) ? new ObjectId(bookId) : null,
+            status: status
         };
         const totalItems = await this.BookCopy.countDocuments(filter);
         const result = await this.BookCopy.find(filter).skip(skip).limit(limit).toArray();
@@ -70,9 +71,10 @@ class BookCopyRepository {
         );
     }
 
-    async countByBookId(bookId) {
+    async countByBookId(bookId, status) {
         const totalBookCopy = await this.BookCopy.countDocuments({
-            bookId: bookId ? (ObjectId.isValid(bookId) ? new ObjectId(bookId) : null) : new ObjectId()
+            bookId: bookId ? (ObjectId.isValid(bookId) ? new ObjectId(bookId) : null) : new ObjectId(),
+            status: status
         });
         return totalBookCopy;
     }

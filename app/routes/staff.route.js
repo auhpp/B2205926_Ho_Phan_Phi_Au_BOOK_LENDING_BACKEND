@@ -5,6 +5,8 @@ import authMiddleware from "../middlewares/auth.middleware.js";
 const router = express.Router();
 
 router.use(authMiddleware);
-router.post("/", staffController.create)
+router.route("/")
+    .post(staffController.create)
+    .get(staffController.findAll);
 
 export default router;

@@ -11,6 +11,8 @@ import bookCopyRouter from "./app/routes/bookCopy.route.js";
 import readerRouter from "./app/routes/reader.route.js";
 import bookCartItemRouter from "./app/routes/bookCartItem.route.js";
 import configurationRouter from "./app/routes/configuration.route.js";
+import loanSlipRouter from "./app/routes/loanSlip.route.js";
+import loanDetailRouter from "./app/routes/loanDetail.route.js";
 
 const app = express();
 //Settting for cors
@@ -35,8 +37,8 @@ app.use("/api/bookCopy", bookCopyRouter);
 app.use("/api/reader", readerRouter);
 app.use("/api/cart", bookCartItemRouter);
 app.use("/api/configuration", configurationRouter);
-
-
+app.use("/api/loanSlip", loanSlipRouter);
+app.use("/api/loanDetail", loanDetailRouter);
 
 app.get('/', (req, res) => {
     res.json({ message: "Welcome to book lending application" });

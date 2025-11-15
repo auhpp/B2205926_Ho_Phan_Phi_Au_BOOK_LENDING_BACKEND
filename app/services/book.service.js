@@ -6,6 +6,7 @@ import MongoDB from "../utils/mongodb.util.js";
 import BookCopyService from "./bookCopy.service.js";
 import { deleteFromCloudinary, uploadFromBuffer } from "./cloudinary.service.js";
 import { Status } from "./../enums/status.enum.js";
+import { BookCopyStatus } from "../enums/bookCopyStatus.enum.js";
 class BookService {
     constructor() {
         this.bookRepository = new BookRepository(MongoDB.client);
@@ -67,7 +68,7 @@ class BookService {
         var newBook = await this.bookRepository.create(dataToSave);
 
         if (!bookData.id) {
-            await this.bookCopyService.create({ status: Status.AVAILABLE, bookId: newBook._id, quantity: bookData.bookCopyQuantity });
+            await this.bookCopyService.create({ status: BookCopyStatus.AVAILABLE, bookId: newBook._id, quantity: bookData.bookCopyQuantity });
         }
         return newBook;
     }
@@ -95,7 +96,7 @@ class BookService {
 
     async findById(id) {
         const book = await this.bookRepository.findById(id);
-        const cntBookCopy = await this.bookCopyService.countByBookId(id);
+        const cntBookCopy = await this.bookCopyService.countByBookId(id, BookCopyStatus.AVAILABLE);
         book.bookCopyQuantity = cntBookCopy;
         return book;
     }

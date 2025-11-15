@@ -26,6 +26,11 @@ class StaffService {
         const currentUser = await this.staffRepository.findByUserName(userName);
         return currentUser;
     }
+
+    async findAll() {
+        const staffs = await this.staffRepository.findAll();
+        return staffs;
+    }
 }
 
 export default StaffService;

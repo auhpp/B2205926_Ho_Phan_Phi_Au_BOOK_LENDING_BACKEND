@@ -41,8 +41,8 @@ class BookCopyService {
         return book;
     }
 
-    async countByBookId(bookId) {
-        const cnt = await this.bookCopyRepository.countByBookId(bookId);
+    async countByBookId(bookId, status) {
+        const cnt = await this.bookCopyRepository.countByBookId(bookId, status);
         return cnt;
     }
     async findById(id) {

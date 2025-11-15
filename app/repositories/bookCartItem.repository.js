@@ -9,8 +9,8 @@ class BookCartItemRepository {
     extractBookCartItemData(payload) {
         const bookCartItem = {
             quantity: payload.quantity,
-            bookId: new ObjectId(payload.bookId),
-            readerId: new ObjectId(payload.readerId)
+            bookId: payload.bookId ? new ObjectId(payload.bookId) : undefined,
+            readerId: payload.readerId ? new ObjectId(payload.readerId) : undefined
         };
 
         Object.keys(bookCartItem).forEach(
@@ -59,6 +59,13 @@ class BookCartItemRepository {
     async delete(id) {
         const filter = {
             _id: ObjectId.isValid(id) ? new ObjectId(id) : null
+        };
+        const result = await this.BookCartItem.findOneAndDelete(filter);
+        return result;
+    }
+    async deleteByBookId(id) {
+        const filter = {
+            bookId: ObjectId.isValid(id) ? new ObjectId(id) : null
         };
         const result = await this.BookCartItem.findOneAndDelete(filter);
         return result;

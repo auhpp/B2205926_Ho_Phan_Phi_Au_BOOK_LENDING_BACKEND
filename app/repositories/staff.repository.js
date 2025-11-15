@@ -54,6 +54,11 @@ class StaffRepository {
             "_id": result._id
         };
     }
+
+    async findAll() {
+        const staffs = await this.Staff.find({}).toArray();
+        return staffs;
+    }
 }
 
 export default StaffRepository;
