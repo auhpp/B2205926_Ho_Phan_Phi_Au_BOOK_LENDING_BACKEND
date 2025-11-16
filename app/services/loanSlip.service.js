@@ -28,6 +28,7 @@ class LoanSlipService {
             const bookCopyAvailableQuantity = await this.bookCopyRepository.countByBookId(books[i]._id, BookCopyStatus.AVAILABLE);
             if (bookCopyAvailableQuantity < books[i].quantity) {
                 throw new ApiError(400, "Quantity not enough")
+
             }
         }
         const loanSlipFound = await this.loanSlipRepository.findByStatus(readerId, LoanSlipStatus.BORROWED);
@@ -38,13 +39,6 @@ class LoanSlipService {
         if (countBookBorrow >= maxBorrowLimit.value) {
             throw new ApiError(400, "Reader borrow to limit")
         }
-        const loanSlip = await this.loanSlipRepository.create({
-            borrowedDate: payload.borrowedDate,
-            returnDate: new Date(payload.returnDate),
-            status: payload.status,
-            readerId: payload.readerId,
-            staffId: payload.staffId
-        });
         var bookCopyRequest = [];
         for (var i = 0; i < books.length; i++) {
             const bookCopies = await this.bookCopyRepository.findAll({
@@ -63,6 +57,14 @@ class LoanSlipService {
                 });
             }
         }
+        const loanSlip = await this.loanSlipRepository.create({
+            borrowedDate: payload.borrowedDate,
+            returnDate: new Date(payload.returnDate),
+            status: payload.status,
+            readerId: payload.readerId,
+            staffId: payload.staffId
+        });
+
         var loanDetails = [];
         for (var i = 0; i < bookCopyRequest.length; i++) {
             const loanDetail = await this.loanDetailRepository.create({
@@ -80,8 +82,8 @@ class LoanSlipService {
     }
 
 
-    async findAll({ page = 1, limit = 10 }) {
-        const loanSlips = await this.loanSlipRepository.findAll(page, limit);
+    async findAll({ page = 1, limit = 10, status }) {
+        const loanSlips = await this.loanSlipRepository.findAll({ page: page, limit: limit, status: status });
         return loanSlips;
     }
 

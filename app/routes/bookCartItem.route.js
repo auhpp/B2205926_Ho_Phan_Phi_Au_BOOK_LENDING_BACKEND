@@ -10,6 +10,9 @@ router.route("/")
     .post(bookCartItemController.create)
     .get(bookCartItemController.findAll);
 
+router.route("/count")
+    .get(bookCartItemController.countDocuments);
+
 router.route("/:id")
     .delete(bookCartItemController.deleteBookCartItem);
 export default router;

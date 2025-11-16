@@ -133,6 +133,13 @@ class BookCartItemRepository {
         );
     }
 
+    async countDocuments(readerId) {
+        const filter = {
+            readerId: ObjectId.isValid(readerId) ? new ObjectId(readerId) : null
+        };
+        const cnt = await this.BookCartItem.countDocuments(filter);
+        return cnt;
+    }
 
 }
 

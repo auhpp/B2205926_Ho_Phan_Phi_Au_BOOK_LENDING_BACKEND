@@ -25,8 +25,8 @@ class BookCopyService {
         return bookCopies;
     }
 
-    async findAll({ bookId, page = 1, limit = 10 }) {
-        const bookCopies = await this.bookCopyRepository.findAll({ bookId, page, limit });
+    async findAll({ bookId, page = 1, limit = 10, status }) {
+        const bookCopies = await this.bookCopyRepository.findAll({ bookId, page, limit, status });
         return bookCopies;
     }
 

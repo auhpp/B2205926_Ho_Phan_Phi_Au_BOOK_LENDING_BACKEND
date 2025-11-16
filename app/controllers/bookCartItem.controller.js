@@ -37,3 +37,11 @@ export const findAll = async (req, res, next) => {
         new ApiReponse("succes", "Find all book cart item success", result)
     );
 }
+
+export const countDocuments = async (req, res, next) => {
+    const bookCartItemService = new BookCartItemService();
+    const result = await bookCartItemService.countDocuments(req.user.id);
+    return res.status(200).json(
+        new ApiReponse("succes", "Count book cart item success", result)
+    );
+}

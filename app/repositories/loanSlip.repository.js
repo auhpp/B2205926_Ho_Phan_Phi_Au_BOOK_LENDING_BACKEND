@@ -130,8 +130,15 @@ class LoanSlipRepository {
         return results;
     }
 
-    async findAll({ page = 1, limit = 10 }) {
+    async findAll({ page = 1, limit = 10, status }) { 
         const skip = (page - 1) * limit;
+
+        const matchStage = [];
+        if (status) {
+            matchStage.push({
+                $match: { status: status }
+            });
+        }
 
         const mainLogicPipeline = [
             {
@@ -143,7 +150,6 @@ class LoanSlipRepository {
                 }
             },
             { $unwind: { path: "$loanDetails", preserveNullAndEmptyArrays: true } },
-
             {
                 $lookup: {
                     from: "BAN_SAO_SACH",
@@ -153,7 +159,6 @@ class LoanSlipRepository {
                 }
             },
             { $unwind: { path: "$bookCopyInfo", preserveNullAndEmptyArrays: true } },
-
             {
                 $lookup: {
                     from: "SACH",
@@ -163,7 +168,6 @@ class LoanSlipRepository {
                 }
             },
             { $unwind: { path: "$bookData", preserveNullAndEmptyArrays: true } },
-
             {
                 $group: {
                     _id: "$_id",
@@ -173,7 +177,7 @@ class LoanSlipRepository {
                     returnedDate: { $first: "$returnedDate" },
                     updatedDate: { $first: "$updatedDate" },
                     staffId: { $first: "$staffId" },
-                    status: { $first: "$status" }, // Status của cả phiếu mượn
+                    status: { $first: "$status" }, 
                     bookCopies: {
                         $push: {
                             $cond: [
@@ -219,6 +223,7 @@ class LoanSlipRepository {
         ];
 
         const finalPipeline = [
+            ...matchStage, 
             ...mainLogicPipeline,
             {
                 $facet: {
@@ -234,9 +239,12 @@ class LoanSlipRepository {
         ];
 
         const result = await this.LoanSlip.aggregate(finalPipeline).toArray();
-        const data = result[0].data;
-        const totalItems = result[0].metadata.length > 0 ? result[0].metadata[0].totalItems : 0;
+
+        const data = result[0]?.data || [];
+        const totalItems = result[0]?.metadata[0]?.totalItems || 0;
+
         const totalPages = Math.ceil(totalItems / limit);
+
         return new PageResponse(
             data,
             totalItems,
@@ -280,6 +288,22 @@ class LoanSlipRepository {
                 }
             },
             { $unwind: { path: "$bookData", preserveNullAndEmptyArrays: true } },
+
+            {
+                $lookup: {
+                    from: "PHIEU_PHAT",
+                    localField: "loanDetails._id",
+                    foreignField: "loanDetailId",
+                    as: "penaltyTicket"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$penaltyTicket",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+
             {
                 $group: {
                     _id: "$_id",
@@ -289,7 +313,7 @@ class LoanSlipRepository {
                     returnedDate: { $first: "$returnedDate" },
                     updatedDate: { $first: "$updatedDate" },
                     staffId: { $first: "$staffId" },
-                    status: { $first: "$status" }, // Status của cả phiếu mượn
+                    status: { $first: "$status" },
                     bookCopies: {
                         $push: {
                             $cond: [
@@ -299,7 +323,8 @@ class LoanSlipRepository {
                                         "$bookCopyInfo",
                                         { "bookData": "$bookData" },
                                         { "loanDetailId": "$loanDetails._id" },
-                                        { "loanDetailStatus": "$loanDetails.status" }
+                                        { "loanDetailStatus": "$loanDetails.status" },
+                                        { "penaltyTicket": "$penaltyTicket" }
                                     ]
                                 },
                                 "$$REMOVE"
@@ -325,6 +350,7 @@ class LoanSlipRepository {
                     preserveNullAndEmptyArrays: true
                 }
             },
+
             {
                 $unset: [
                     "reader.password",

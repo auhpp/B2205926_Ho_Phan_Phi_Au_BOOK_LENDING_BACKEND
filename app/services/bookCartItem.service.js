@@ -28,6 +28,12 @@ class BookCartItemService {
         const bookCartItems = await this.bookCartItemRepository.findPagination({ readerId, page, limit });
         return bookCartItems;
     }
+
+    async countDocuments(readerId) {
+        const cnt = await this.bookCartItemRepository.countDocuments(readerId);
+        return cnt;
+    }
+
 }
 
 export default BookCartItemService;

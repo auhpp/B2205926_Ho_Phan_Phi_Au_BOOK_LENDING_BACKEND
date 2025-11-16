@@ -13,6 +13,7 @@ import bookCartItemRouter from "./app/routes/bookCartItem.route.js";
 import configurationRouter from "./app/routes/configuration.route.js";
 import loanSlipRouter from "./app/routes/loanSlip.route.js";
 import loanDetailRouter from "./app/routes/loanDetail.route.js";
+import penaltyTicketRouter from "./app/routes/penaltyTicket.route.js";
 
 const app = express();
 //Settting for cors
@@ -39,6 +40,7 @@ app.use("/api/cart", bookCartItemRouter);
 app.use("/api/configuration", configurationRouter);
 app.use("/api/loanSlip", loanSlipRouter);
 app.use("/api/loanDetail", loanDetailRouter);
+app.use("/api/penaltyTicket", penaltyTicketRouter);
 
 app.get('/', (req, res) => {
     res.json({ message: "Welcome to book lending application" });

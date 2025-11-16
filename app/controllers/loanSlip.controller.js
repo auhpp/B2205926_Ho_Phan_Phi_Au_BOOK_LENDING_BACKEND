@@ -18,8 +18,9 @@ export const create = async (req, res, next) => {
 export const findAll = async (req, res, next) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
+    const status = req.query.status || null;
     const loanSlipService = new LoanSlipService();
-    const result = await loanSlipService.findAll({ page: page, limit: limit });
+    const result = await loanSlipService.findAll({ page: page, limit: limit, status: status });
     return res.status(200).json(
         new ApiReponse("succes", "Find all loan slips success", result)
     );

@@ -14,8 +14,10 @@ export const findByBookId = async (req, res, next) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const bookId = req.query.bookId;
+    const status = req.query.status;
+
     const bookCopyService = new BookCopyService()
-    const result = await bookCopyService.findAll({ bookId: bookId, page: page, limit: limit });
+    const result = await bookCopyService.findAll({ bookId: bookId, page: page, limit: limit, status: status });
     return res.status(200).json(
         new ApiReponse("succes", "Find all book copy success", result)
     );

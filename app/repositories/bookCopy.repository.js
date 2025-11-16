@@ -56,10 +56,13 @@ class BookCopyRepository {
 
     async findAll({ bookId, status, page = 1, limit = 10 }) {
         const skip = (page - 1) * limit;
+
         const filter = {
             bookId: ObjectId.isValid(bookId) ? new ObjectId(bookId) : null,
-            status: status
         };
+        if (status) {
+            filter.status = status;
+        }
         const totalItems = await this.BookCopy.countDocuments(filter);
         const result = await this.BookCopy.find(filter).skip(skip).limit(limit).toArray();
         const totalPages = Math.ceil(totalItems / limit);
