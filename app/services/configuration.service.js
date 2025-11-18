@@ -7,10 +7,7 @@ class ConfigurationService {
         this.configurationRepository = new ConfigurationRepository(MongoDB.client);
     }
 
-    async create({ _id = null, value, unit }) {
-        if (value == "") {
-            throw new ApiError(400, "Value cannot empty")
-        }
+    async update({ _id, value, unit }) {
         const configuration = this.configurationRepository.create({ _id, value: value, unit: unit });
         return configuration;
     }
@@ -24,8 +21,8 @@ class ConfigurationService {
         return result;
     }
 
-    async findPagination({ page = 1, limit = 10 }) {
-        const configurations = await this.configurationRepository.findPagination({ page, limit });
+    async findPagination({ page = 1, limit = 10, name }) {
+        const configurations = await this.configurationRepository.findPagination({ page, limit, name });
         return configurations;
     }
 }

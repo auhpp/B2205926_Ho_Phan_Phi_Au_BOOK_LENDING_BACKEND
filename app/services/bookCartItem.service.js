@@ -1,13 +1,20 @@
 import ApiError from "../api-error.js";
 import BookCartItemRepository from "../repositories/bookCartItem.repository.js";
 import MongoDB from "../utils/mongodb.util.js";
+import BookCopyRepository from "../repositories/bookCopy.repository.js";
+import { BookCopyStatus } from "../enums/bookCopyStatus.enum.js";
 
 class BookCartItemService {
     constructor() {
         this.bookCartItemRepository = new BookCartItemRepository(MongoDB.client);
+        this.bookCopyRepository = new BookCopyRepository(MongoDB.client)
     }
 
-    async create({ _id = null, quantity, bookId, readerId }) {
+    async create({ quantity, bookId, readerId }) {
+        const bookCopyQuantity = this.bookCopyRepository.countByBookId(bookId, BookCopyStatus.AVAILABLE);
+        if (bookCopyQuantity == 0) {
+            throw new ApiError(400, "Book copy quantity not enough")
+        }
         var bookCartItem = await this.bookCartItemRepository.findByBookIdAndReaderId({ bookId: bookId, readerId: readerId });
         if (bookCartItem) {
             bookCartItem.quantity = quantity;

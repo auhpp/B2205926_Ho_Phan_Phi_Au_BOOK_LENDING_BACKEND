@@ -12,8 +12,17 @@ class PenaltyTicketService {
         return result;
     }
 
-    async findPagination({ page = 1, limit = 10, paymentStatus }) {
-        const penaltyTickets = await this.penaltyTicketRepository.findPagination({ page: page, limit: limit, paymentStatus: paymentStatus });
+
+    async update(payload) {
+        const result = await this.penaltyTicketRepository.create(payload);
+        return result;
+    }
+
+    async findPagination({ page = 1, limit = 10, paymentStatus, id }) {
+        const penaltyTickets = await this.penaltyTicketRepository.findPagination({
+            page: page, limit: limit,
+            paymentStatus: paymentStatus, id
+        });
         return penaltyTickets;
     }
 

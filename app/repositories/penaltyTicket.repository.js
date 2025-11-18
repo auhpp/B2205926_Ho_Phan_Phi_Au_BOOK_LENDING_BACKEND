@@ -26,9 +26,9 @@ class PenaltyTicketRepository {
 
     async create(payload) {
         const penaltyTicket = this.extractData(payload);
-        var _id = payload._id;
+        var _id = payload.id;
         const filter = {
-            _id: _id ? (ObjectId.isValid(_id) ? new ObjectId(_id) : null) : new ObjectId()
+            _id: _id ? new ObjectId(_id) : new ObjectId()
         };
 
         const update = {
@@ -44,14 +44,19 @@ class PenaltyTicketRepository {
         return result;
     }
 
-    async findPagination({ page = 1, limit = 10, paymentStatus }) {
+    async findPagination({ page = 1, limit = 10, paymentStatus, id }) {
         const skip = (page - 1) * limit;
 
-        const matchStage = [];
+        const matchQuery = {};
+        if (id) {
+            matchQuery._id = new ObjectId(id);
+        }
         if (paymentStatus) {
-            matchStage.push({
-                $match: { paymentStatus: paymentStatus }
-            });
+            matchQuery.paymentStatus = paymentStatus;
+        }
+        const matchStage = [];
+        if (Object.keys(matchQuery).length > 0) {
+            matchStage.push({ $match: matchQuery });
         }
         const aggregationPipeline = [
             ...matchStage,
@@ -314,7 +319,7 @@ class PenaltyTicketRepository {
 
     async delete(id) {
         const filter = {
-            _id: ObjectId.isValid(id) ? new ObjectId(id) : null
+            _id: new ObjectId(id)
         };
         const result = await this.PenaltyTicket.findOneAndDelete(filter);
         return result;

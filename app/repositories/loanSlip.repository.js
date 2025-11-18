@@ -28,7 +28,7 @@ class LoanSlipRepository {
         const loanSlip = this.extractData(payload);
         var _id = payload._id;
         const filter = {
-            _id: _id ? (ObjectId.isValid(_id) ? new ObjectId(_id) : null) : new ObjectId()
+            _id: _id ? new ObjectId(_id) : new ObjectId()
         };
 
         const update = {
@@ -46,7 +46,7 @@ class LoanSlipRepository {
 
     async findByStatus(readerId, status) {
         const filter = {
-            readerId: readerId ? (ObjectId.isValid(readerId) ? new ObjectId(readerId) : null) : new ObjectId(),
+            readerId: readerId ? new ObjectId(readerId) : new ObjectId(),
             status: status
         };
         const loanSlip = this.LoanSlip.findOne(filter);
@@ -54,7 +54,7 @@ class LoanSlipRepository {
     }
 
     async findReaderPenaltyTicket(readerId, status) {
-        readerId = readerId ? (ObjectId.isValid(readerId) ? new ObjectId(readerId) : null) : new ObjectId();
+        readerId = readerId ? new ObjectId(readerId) : new ObjectId();
         const innerMatchConditions = {
             '$expr': {
                 '$and': [
@@ -130,16 +130,20 @@ class LoanSlipRepository {
         return results;
     }
 
-    async findAll({ page = 1, limit = 10, status }) { 
+    async findAll({ page = 1, limit = 10, status, id }) {
         const skip = (page - 1) * limit;
 
-        const matchStage = [];
-        if (status) {
-            matchStage.push({
-                $match: { status: status }
-            });
+        const matchQuery = {};
+        if (id) {
+            matchQuery._id = new ObjectId(id);
         }
-
+        if (status) {
+            matchQuery.status = status;
+        }
+        const matchStage = [];
+        if (Object.keys(matchQuery).length > 0) {
+            matchStage.push({ $match: matchQuery });
+        }
         const mainLogicPipeline = [
             {
                 $lookup: {
@@ -177,7 +181,7 @@ class LoanSlipRepository {
                     returnedDate: { $first: "$returnedDate" },
                     updatedDate: { $first: "$updatedDate" },
                     staffId: { $first: "$staffId" },
-                    status: { $first: "$status" }, 
+                    status: { $first: "$status" },
                     bookCopies: {
                         $push: {
                             $cond: [
@@ -223,7 +227,7 @@ class LoanSlipRepository {
         ];
 
         const finalPipeline = [
-            ...matchStage, 
+            ...matchStage,
             ...mainLogicPipeline,
             {
                 $facet: {

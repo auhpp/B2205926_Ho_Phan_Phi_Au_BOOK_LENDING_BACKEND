@@ -21,7 +21,7 @@ class CategoryRepository {
         const category = this.extractStaffData(payload);
         var _id = payload._id;
         const filter = {
-            _id: _id ? (ObjectId.isValid(_id) ? new ObjectId(_id) : null) : new ObjectId()
+            _id: _id ? new ObjectId(_id) : new ObjectId()
         };
 
         const update = {
@@ -47,7 +47,7 @@ class CategoryRepository {
 
     async findById(id) {
         const category = this.Category.findOne({
-            _id: id ? (ObjectId.isValid(id) ? new ObjectId(id) : null) : new ObjectId()
+            _id: new ObjectId(id)
         });
         return category;
     }
@@ -58,16 +58,20 @@ class CategoryRepository {
     }
     async delete(id) {
         const filter = {
-            _id: ObjectId.isValid(id) ? new ObjectId(id) : null
+            _id: new ObjectId(id)
         };
         const result = await this.Category.findOneAndDelete(filter);
         return result;
     }
 
-    async findPagination({ page = 1, limit = 10 }) {
+    async findPagination({ page = 1, limit = 10, name }) {
         const skip = (page - 1) * limit;
-        const totalItems = await this.Category.countDocuments({});
-        const result = await this.Category.find({}).skip(skip).limit(limit).toArray();
+        const filter = {};
+        if (name) {
+            filter.name = { $regex: name, $options: 'i' };
+        }
+        const totalItems = await this.Category.countDocuments(filter);
+        const result = await this.Category.find(filter).skip(skip).limit(limit).toArray();
         const totalPages = Math.ceil(totalItems / limit);
         return new PageResponse(
             result,

@@ -23,7 +23,7 @@ class BookCopyRepository {
         const bookCopy = this.extractData(payload);
         var _id = payload._id;
         const filter = {
-            _id: _id ? (ObjectId.isValid(_id) ? new ObjectId(_id) : null) : new ObjectId()
+            _id: _id ? new ObjectId(_id) : new ObjectId()
         };
         const update = {
             $set: bookCopy
@@ -40,7 +40,7 @@ class BookCopyRepository {
 
     async delete(id) {
         const filter = {
-            _id: ObjectId.isValid(id) ? new ObjectId(id) : null
+            _id: new ObjectId(id)
         };
         const result = await this.BookCopy.findOneAndDelete(filter);
         return result;
@@ -48,7 +48,7 @@ class BookCopyRepository {
 
     async deleteMany(bookId) {
         const filter = {
-            bookId: ObjectId.isValid(bookId) ? new ObjectId(bookId) : null
+            bookId: new ObjectId(bookId)
         };
         const result = await this.BookCopy.deleteMany(filter);
         return result;
@@ -58,7 +58,7 @@ class BookCopyRepository {
         const skip = (page - 1) * limit;
 
         const filter = {
-            bookId: ObjectId.isValid(bookId) ? new ObjectId(bookId) : null,
+            bookId: new ObjectId(bookId),
         };
         if (status) {
             filter.status = status;
@@ -76,7 +76,7 @@ class BookCopyRepository {
 
     async countByBookId(bookId, status) {
         const totalBookCopy = await this.BookCopy.countDocuments({
-            bookId: bookId ? (ObjectId.isValid(bookId) ? new ObjectId(bookId) : null) : new ObjectId(),
+            bookId: bookId ? new ObjectId(bookId) : new ObjectId(),
             status: status
         });
         return totalBookCopy;
@@ -84,10 +84,12 @@ class BookCopyRepository {
 
     async findById(id) {
         const book = this.BookCopy.findOne({
-            _id: id ? (ObjectId.isValid(id) ? new ObjectId(id) : null) : new ObjectId()
+            _id: new ObjectId(id)
         });
         return book;
     }
+
+
 }
 
 export default BookCopyRepository;

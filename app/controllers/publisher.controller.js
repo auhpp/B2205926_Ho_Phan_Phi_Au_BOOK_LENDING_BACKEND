@@ -3,28 +3,56 @@ import PublisherService from "../services/publisher.service.js";
 import ApiError from "../api-error.js";
 
 export const create = async (req, res, next) => {
-    const publisherService = new PublisherService();
-    const publisher = await publisherService.create({ _id: req.body.id, name: req.body.name, address: req.body.address });
-    return res.status(200).json(
-        new ApiReponse("succes", "Create a publisher success", publisher)
-    );
+    try {
+        const publisherService = new PublisherService();
+        const publisher = await publisherService.create({ name: req.body.name });
+        return res.status(200).json(
+            new ApiReponse("succes", "Create a publisher success", publisher)
+        );
+    } catch (error) {
+        return next(error)
+    }
+}
+
+export const update = async (req, res, next) => {
+    try {
+        const publisherService = new PublisherService();
+        const publisher = await publisherService.update({ _id: req.params.id, name: req.body.name });
+        return res.status(200).json(
+            new ApiReponse("succes", "Create a publisher success", publisher)
+        );
+    } catch (error) {
+        return next(error)
+    }
+}
+
+export const findPagination = async (req, res, next) => {
+    try {
+        var publishers = [];
+        const publisherService = new PublisherService();
+        const page = parseInt(req.query.page);
+        const limit = parseInt(req.query.limit);
+        const name = req.query.name;
+        publishers = await publisherService.findPagination({ page: page, limit: limit, name: name });
+        return res.status(200).json(
+            new ApiReponse("succes", "Find all publisher success", publishers)
+        );
+    } catch (error) {
+        return next(error)
+    }
 }
 
 export const findAll = async (req, res, next) => {
-    var publishers = [];
-    const publisherService = new PublisherService();
-    if (!parseInt(req.query.page) && !parseInt(req.query.limit)) {
+    try {
+        var publishers = [];
+        const publisherService = new PublisherService();
         publishers = await publisherService.findAll();
+        return res.status(200).json(
+            new ApiReponse("succes", "Find all publisher success", publishers)
+        );
+    } catch (error) {
+        return next(error)
     }
-    else {
-        const page = parseInt(req.query.page);
-        const limit = parseInt(req.query.limit);
-        publishers = await publisherService.findPagination({ page: page, limit: limit });
-    }
-
-    return res.status(200).json(
-        new ApiReponse("succes", "Find all publisher success", publishers)
-    );
 }
 
 export const deletePublisher = async (req, res, next) => {
@@ -36,8 +64,6 @@ export const deletePublisher = async (req, res, next) => {
         }
         return res.send({ message: "publisher was deleted successfully" });
     } catch (error) {
-        return next(
-            new ApiError(500, `Could not delete publisher with id=${req.params.id}`)
-        );
+        return next(error);
     }
 }

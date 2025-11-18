@@ -3,14 +3,18 @@ import ApiError from "../api-error.js";
 import BookCartItemService from "../services/bookCartItem.service.js";
 
 export const create = async (req, res, next) => {
-    const bookCartItemService = new BookCartItemService();
-    const bookCartItem = await bookCartItemService.create({
-        _id: req.body._id, quantity: req.body.quantity, bookId: req.body.bookId, readerId: req.user.id
-
-    });
-    return res.status(200).json(
-        new ApiReponse("succes", "Create a bookCartItem success", bookCartItem)
-    );
+    try {
+        const bookCartItemService = new BookCartItemService();
+        const bookCartItem = await bookCartItemService.create({
+            quantity: req.body.quantity, bookId: req.body.bookId, readerId: req.user.id
+        });
+        return res.status(200).json(
+            new ApiReponse("succes", "Create a bookCartItem success", bookCartItem)
+        );
+    }
+    catch (error) {
+        return next(error)
+    }
 }
 
 export const deleteBookCartItem = async (req, res, next) => {
@@ -22,26 +26,34 @@ export const deleteBookCartItem = async (req, res, next) => {
         }
         return res.send({ message: "Book cart item was deleted successfully" });
     } catch (error) {
-        return next(
-            new ApiError(500, `Could not delete book cart item with id=${req.params.id}`)
-        );
+        return next(error);
     }
 }
 
 export const findAll = async (req, res, next) => {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const bookCartItemService = new BookCartItemService();
-    const result = await bookCartItemService.findPagination({ readerId: req.user.id, page: page, limit: limit });
-    return res.status(200).json(
-        new ApiReponse("succes", "Find all book cart item success", result)
-    );
+    try {
+        const page = parseInt(req.query.page);
+        const limit = parseInt(req.query.limit);
+        const bookCartItemService = new BookCartItemService();
+        const result = await bookCartItemService.findPagination({ readerId: req.user.id, page: page, limit: limit });
+        return res.status(200).json(
+            new ApiReponse("succes", "Find all book cart item success", result)
+        );
+    }
+    catch (error) {
+        return next(error)
+    }
 }
 
 export const countDocuments = async (req, res, next) => {
-    const bookCartItemService = new BookCartItemService();
-    const result = await bookCartItemService.countDocuments(req.user.id);
-    return res.status(200).json(
-        new ApiReponse("succes", "Count book cart item success", result)
-    );
+    try {
+        const bookCartItemService = new BookCartItemService();
+        const result = await bookCartItemService.countDocuments(req.user.id);
+        return res.status(200).json(
+            new ApiReponse("succes", "Count book cart item success", result)
+        );
+    } catch (error) {
+        return next(error)
+    }
+
 }

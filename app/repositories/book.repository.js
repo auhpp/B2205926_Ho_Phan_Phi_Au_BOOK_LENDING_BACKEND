@@ -10,7 +10,6 @@ class BookRepository {
         const book = {
             name: payload.name,
             price: payload.price,
-            yearOfPublication: payload.yearOfPublication,
             authors: payload.authors,
             images: payload.images,
             categories: payload.categories,
@@ -27,7 +26,7 @@ class BookRepository {
         const book = this.extractData(payload);
         var _id = payload.id;
         const filter = {
-            _id: _id ? (ObjectId.isValid(_id) ? new ObjectId(_id) : null) : new ObjectId()
+            _id: _id ? new ObjectId(_id) : new ObjectId()
         };
         const update = {
             $set: book
@@ -44,18 +43,38 @@ class BookRepository {
 
     async delete(id) {
         const filter = {
-            _id: id ? (ObjectId.isValid(id) ? new ObjectId(id) : null) : new ObjectId()
+            _id: id ? new ObjectId(id) : new ObjectId()
         };
         const result = await this.Book.findOneAndDelete(filter);
-        console.log("res xoa", result)
         return result;
     }
 
-    async findAll({ page = 1, limit = 10 }) {
+    async findAll({ authorId, publisherId, categoryId, page = 1, limit = 10, name }) {
         const skip = (page - 1) * limit;
-        const totalItems = await this.Book.countDocuments({});
+        const filterQuery = {};
+        if (name) {
+            filterQuery.name = { $regex: name, $options: 'i' };
+        }
+        if (authorId) {
+            if (!ObjectId.isValid(authorId)) { return []; }
+            filterQuery['authors._id'] = new ObjectId(authorId);
+        }
+        if (publisherId) {
+            if (!ObjectId.isValid(publisherId)) { return []; }
+            filterQuery['publisher._id'] = new ObjectId(publisherId);
+        }
+        if (categoryId) {
+            if (!ObjectId.isValid(categoryId)) { return []; }
+            filterQuery['categories._id'] = new ObjectId(categoryId);
+        }
+
+        const totalItems = await this.Book.countDocuments(filterQuery);
         const totalPages = Math.ceil(totalItems / limit);
+
         const pipeline = [
+            {
+                $match: filterQuery
+            },
             {
                 $lookup: {
                     from: "BAN_SAO_SACH",
@@ -74,7 +93,7 @@ class BookRepository {
             },
             { $skip: skip },
             { $limit: limit }
-        ]
+        ];
         const result = await this.Book.aggregate(pipeline).toArray();
         return new PageResponse(
             result,
@@ -86,7 +105,7 @@ class BookRepository {
 
     async findById(id) {
         const book = this.Book.findOne({
-            _id: id ? (ObjectId.isValid(id) ? new ObjectId(id) : null) : new ObjectId()
+            _id: id ? new ObjectId(id) : new ObjectId()
         });
         return book;
     }

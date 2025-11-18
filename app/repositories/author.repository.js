@@ -21,7 +21,7 @@ class AuthorRepository {
         const author = this.extractStaffData(payload);
         var _id = payload._id;
         const filter = {
-            _id: _id ? (ObjectId.isValid(_id) ? new ObjectId(_id) : null) : new ObjectId()
+            _id: _id ? new ObjectId(_id) : new ObjectId()
         };
 
         const update = {
@@ -42,10 +42,14 @@ class AuthorRepository {
         return result;
     }
 
-    async findPagination({ page = 1, limit = 10 }) {
+    async findPagination({ page = 1, limit = 10, name }) {
         const skip = (page - 1) * limit;
-        const totalItems = await this.Author.countDocuments({});
-        const result = await this.Author.find({}).skip(skip).limit(limit).toArray();
+        const filter = {};
+        if (name) {
+            filter.name = { $regex: name, $options: 'i' };
+        }
+        const totalItems = await this.Author.countDocuments(filter);
+        const result = await this.Author.find(filter).skip(skip).limit(limit).toArray();
         const totalPages = Math.ceil(totalItems / limit);
         return new PageResponse(
             result,
@@ -57,19 +61,25 @@ class AuthorRepository {
 
     async findById(id) {
         const author = this.Author.findOne({
-            _id: id ? (ObjectId.isValid(id) ? new ObjectId(id) : null) : new ObjectId()
+            _id: new ObjectId(id)
         });
         return author;
     }
 
     async delete(id) {
         const filter = {
-            _id: ObjectId.isValid(id) ? new ObjectId(id) : null
+            _id: new ObjectId(id)
         };
         const result = await this.Author.findOneAndDelete(filter);
         return result;
     }
 
+    async findByName(name) {
+        const author = this.Author.findOne({
+            name: name
+        });
+        return author;
+    }
 }
 
 export default AuthorRepository;

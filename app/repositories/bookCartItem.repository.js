@@ -23,7 +23,7 @@ class BookCartItemRepository {
         const bookCartItem = this.extractBookCartItemData(payload);
         var _id = payload._id;
         const filter = {
-            _id: _id ? (ObjectId.isValid(_id) ? new ObjectId(_id) : null) : new ObjectId()
+            _id: _id ? new ObjectId(_id) : new ObjectId()
         };
 
         const update = {
@@ -41,10 +41,11 @@ class BookCartItemRepository {
 
     async findById(id) {
         const bookCartItem = this.BookCartItem.findOne({
-            _id: id ? (ObjectId.isValid(id) ? new ObjectId(id) : null) : new ObjectId()
+            _id: new ObjectId(id)
         });
         return bookCartItem;
     }
+
     async findByBookIdAndReaderId({ bookId, readerId }) {
         const bookCartItem = this.BookCartItem.findOne({
             bookId: new ObjectId(bookId), readerId: new ObjectId(readerId)
@@ -56,16 +57,18 @@ class BookCartItemRepository {
         const categories = await this.BookCartItem.find({}).toArray();
         return categories;
     }
+
     async delete(id) {
         const filter = {
-            _id: ObjectId.isValid(id) ? new ObjectId(id) : null
+            _id: new ObjectId(id)
         };
         const result = await this.BookCartItem.findOneAndDelete(filter);
         return result;
     }
+
     async deleteByBookId(id) {
         const filter = {
-            bookId: ObjectId.isValid(id) ? new ObjectId(id) : null
+            bookId: new ObjectId(id)
         };
         const result = await this.BookCartItem.findOneAndDelete(filter);
         return result;
@@ -121,10 +124,8 @@ class BookCartItemRepository {
             { $skip: skip },
             { $limit: limit }
         ];
-        console.log(pipeline)
 
         const result = await this.BookCartItem.aggregate(pipeline).toArray();
-        console.log(result);
         return new PageResponse(
             result,
             totalItems,
@@ -135,7 +136,7 @@ class BookCartItemRepository {
 
     async countDocuments(readerId) {
         const filter = {
-            readerId: ObjectId.isValid(readerId) ? new ObjectId(readerId) : null
+            readerId: new ObjectId(readerId)
         };
         const cnt = await this.BookCartItem.countDocuments(filter);
         return cnt;

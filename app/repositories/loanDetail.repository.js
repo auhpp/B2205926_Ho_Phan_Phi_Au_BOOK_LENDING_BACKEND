@@ -21,9 +21,9 @@ class LoanDetailRepository {
 
     async create(payload) {
         const loanDetail = this.extractData(payload);
-        var _id = payload._id;
+        var _id = payload.id;
         const filter = {
-            _id: _id ? (ObjectId.isValid(_id) ? new ObjectId(_id) : null) : new ObjectId()
+            _id: _id ? new ObjectId(_id) : new ObjectId()
         };
 
         const update = {
@@ -41,7 +41,7 @@ class LoanDetailRepository {
 
     async updateManyByLoanSlipId({ loanSlipId, status }) {
         const filter = {
-            loanSlipId: loanSlipId ? (ObjectId.isValid(loanSlipId) ? new ObjectId(loanSlipId) : null) : new ObjectId()
+            loanSlipId: new ObjectId(loanSlipId)
         };
 
         const updateDoc = {
@@ -53,9 +53,51 @@ class LoanDetailRepository {
 
     async findAllByLoanSlipId({ loanSlipId }) {
         const filter = {
-            loanSlipId: loanSlipId ? (ObjectId.isValid(loanSlipId) ? new ObjectId(loanSlipId) : null) : new ObjectId()
+            loanSlipId: new ObjectId(loanSlipId)
         };
         const result = await this.LoanDetail.find(filter).toArray();
+        return result;
+    }
+
+    async findByBookCopyIdOrBookId({ bookCopyId, bookId }) {
+        if (!bookCopyId && !bookId) {
+            return [];
+        }
+
+        const pipeline = [];
+        const joinBook = {
+            $lookup: {
+                from: "BAN_SAO_SACH",
+                localField: "bookCopyId",
+                foreignField: "_id",
+                as: "bookCopies"
+            }
+        };
+
+        if (bookCopyId) {
+            if (!ObjectId.isValid(bookCopyId)) {
+                return [];
+            }
+            pipeline.push({
+                $match: {
+                    bookCopyId: new ObjectId(bookCopyId)
+                }
+            });
+            pipeline.push(joinBook);
+
+        } else if (bookId) {
+            if (!ObjectId.isValid(bookId)) {
+                return [];
+            }
+            pipeline.push(joinBook);
+            pipeline.push({
+                $match: {
+                    "bookCopies.bookId": new ObjectId(bookId)
+                }
+            });
+        }
+
+        const result = await this.LoanDetail.aggregate(pipeline).toArray();
         return result;
     }
 }

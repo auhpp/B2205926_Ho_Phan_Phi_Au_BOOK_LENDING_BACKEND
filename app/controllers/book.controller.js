@@ -7,8 +7,7 @@ export const create = async (req, res, next) => {
         const bookData = req.body;
         const bookService = new BookService()
         const files = req.files;
-
-        if (bookData.id == "" && (!files || files.length === 0)) {
+        if (!files || files.length === 0) {
             return res.status(400).json({ error: 'No images uploaded.' });
         }
         const newBook = await bookService.create(bookData, files);
@@ -16,18 +15,43 @@ export const create = async (req, res, next) => {
             new ApiReponse("succes", "Create a book success", newBook)
         );
     } catch (error) {
-        console.error('Error creating book:', error.message);
+        return next(error);
+    }
+}
+
+export const update = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        if (!id) {
+            return res.status(400).json({ error: "Don't have book id" });
+        }
+        const bookData = req.body;
+        bookData.id = id;
+        const bookService = new BookService()
+
+        const files = req.files;
+        const newBook = await bookService.update(bookData, files);
+        return res.status(201).json(
+            new ApiReponse("succes", "Update a book success", newBook)
+        );
+    } catch (error) {
+        return next(error);
     }
 }
 
 export const findAll = async (req, res, next) => {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const bookService = new BookService()
-    const result = await bookService.findAll({ page: page, limit: limit });
-    return res.status(200).json(
-        new ApiReponse("succes", "Find all book success", result)
-    );
+    try {
+        const page = parseInt(req.query.page);
+        const limit = parseInt(req.query.limit);
+        const name = req.query.name;
+        const bookService = new BookService()
+        const result = await bookService.findAll({ page: page, limit: limit, name: name });
+        return res.status(200).json(
+            new ApiReponse("succes", "Find all book success", result)
+        );
+    } catch (error) {
+        return next(error);
+    }
 }
 
 
@@ -40,16 +64,18 @@ export const deleteBook = async (req, res, next) => {
         }
         return res.send({ message: "Book was deleted successfully" });
     } catch (error) {
-        return next(
-            new ApiError(500, `Could not delete book with id=${req.params.id}`)
-        );
+        return next(error);
     }
 }
 
 export const findById = async (req, res, next) => {
-    const bookService = new BookService()
-    const result = await bookService.findById(req.params.id);
-    return res.status(200).json(
-        new ApiReponse("succes", "Find a book success", result)
-    );
+    try {
+        const bookService = new BookService()
+        const result = await bookService.findById(req.params.id);
+        return res.status(200).json(
+            new ApiReponse("succes", "Find a book success", result)
+        );
+    } catch (error) {
+        return next(error);
+    }
 }

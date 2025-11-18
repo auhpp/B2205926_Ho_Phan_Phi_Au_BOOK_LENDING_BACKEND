@@ -59,7 +59,7 @@ class LoanSlipService {
         }
         const loanSlip = await this.loanSlipRepository.create({
             borrowedDate: payload.borrowedDate,
-            returnDate: new Date(payload.returnDate),
+            returnDate: payload.returnDate,
             status: payload.status,
             readerId: payload.readerId,
             staffId: payload.staffId
@@ -82,8 +82,8 @@ class LoanSlipService {
     }
 
 
-    async findAll({ page = 1, limit = 10, status }) {
-        const loanSlips = await this.loanSlipRepository.findAll({ page: page, limit: limit, status: status });
+    async findAll({ page = 1, limit = 10, status, id }) {
+        const loanSlips = await this.loanSlipRepository.findAll({ page: page, limit: limit, status: status, id: id });
         return loanSlips;
     }
 
