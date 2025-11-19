@@ -73,6 +73,13 @@ class ReaderRepository {
         const { password, ...userWithoutPassword } = result;
         return userWithoutPassword;
     }
+
+    async findById(id) {
+        const reader = this.Reader.findOne({
+            _id: new ObjectId(id)
+        });
+        return reader;
+    }
 }
 
 export default ReaderRepository;

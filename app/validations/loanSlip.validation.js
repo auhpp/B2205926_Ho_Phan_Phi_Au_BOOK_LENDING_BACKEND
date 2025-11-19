@@ -34,7 +34,7 @@ export const createLoanSlipSchema = Joi.object({
 
 export const updateLoanSlipSchema = Joi.object({
     status: Joi.string().trim().required(),
-    staffId: objectIdRule.required()
+    staffId: objectIdRule
 })
 
 export const findAllSchema = paginationSchema.append({

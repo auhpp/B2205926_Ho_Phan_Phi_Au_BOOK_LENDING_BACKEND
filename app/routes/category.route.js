@@ -4,19 +4,20 @@ import authMiddleware from "../middlewares/auth.middleware.js";
 import validate from "../middlewares/validate.middleware.js";
 import { idSchema } from "../validations/commom.validation.js";
 import { createCategorySchema, findAllSchema, updateCategorySchema } from "../validations/category.validation.js";
+import authorize from "../middlewares/authorize.middleware.js";
 
 const router = express.Router();
 
 router.use(authMiddleware);
 
 router.route("/")
-    .post(validate(createCategorySchema, "body"), categoryController.create)
-    .get(validate(findAllSchema, "query"), categoryController.findPagination);
+    .post(authorize('admin'), validate(createCategorySchema, "body"), categoryController.create)
+    .get(authorize('admin'), validate(findAllSchema, "query"), categoryController.findPagination);
 
 router.route("/all")
-    .get(categoryController.findAll)
+    .get(authorize('admin'), categoryController.findAll)
 
 router.route("/:id")
-    .delete(validate(idSchema, "params"), categoryController.deleteCategory)
-    .put(validate(idSchema, "params"), validate(updateCategorySchema, "body"), categoryController.update)
+    .delete(authorize('admin'), validate(idSchema, "params"), categoryController.deleteCategory)
+    .put(authorize('admin'), validate(idSchema, "params"), validate(updateCategorySchema, "body"), categoryController.update)
 export default router;

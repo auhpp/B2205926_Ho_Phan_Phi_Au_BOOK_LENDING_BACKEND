@@ -39,10 +39,6 @@ class ConfigurationRepository {
         return result;
     }
 
-    async findAll() {
-        const result = await this.Configuration.find({}).toArray();
-        return result;
-    }
 
     async findById(id) {
         const configuration = this.Configuration.findOne({

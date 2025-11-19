@@ -4,12 +4,13 @@ import authMiddleware from "../middlewares/auth.middleware.js";
 import validate from "../middlewares/validate.middleware.js";
 import { updateLoanDetailSchema } from "../validations/loanDetail.validation.js";
 import { idSchema } from "../validations/commom.validation.js";
+import authorize from "../middlewares/authorize.middleware.js";
 
 const router = express.Router();
 
 router.use(authMiddleware);
 
 router.route("/:id")
-    .put(validate(idSchema, "params"), validate(updateLoanDetailSchema, "body"), loanDetailController.update)
+    .put(authorize('admin'), validate(idSchema, "params"), validate(updateLoanDetailSchema, "body"), loanDetailController.update)
 
 export default router;

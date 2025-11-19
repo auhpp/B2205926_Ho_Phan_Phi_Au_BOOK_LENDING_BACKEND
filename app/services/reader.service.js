@@ -23,7 +23,12 @@ class ReaderService {
         return reader;
     }
 
-    async updateInfo(payload, avatar) {
+    async updateInfo(payload, avatar, currentUser) {
+        const { userName } = currentUser;
+        const readerDB = await this.readerRepository.findById(payload._id);
+        if (readerDB.userName !== userName) {
+            throw new ApiError(403, "Forbidden access")
+        }
         var imageUrl = undefined;
         if (avatar != null) {
             imageUrl = await uploadFromBuffer(avatar);

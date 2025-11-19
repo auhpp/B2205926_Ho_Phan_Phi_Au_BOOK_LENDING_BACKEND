@@ -29,19 +29,6 @@ export const findPagination = async (req, res, next) => {
     }
 }
 
-export const findAll = async (req, res, next) => {
-    try {
-        var configurations = [];
-        const configurationService = new ConfigurationService();
-        configurations = await configurationService.findAll();
-        return res.status(200).json(
-            new ApiReponse("succes", "Find all configuration success", configurations)
-        );
-    } catch (error) {
-        return next(error)
-    }
-}
-
 
 export const findByName = async (req, res, next) => {
     try {

@@ -5,16 +5,21 @@ import authMiddleware from "../middlewares/auth.middleware.js";
 import validate from "../middlewares/validate.middleware.js";
 import { createReaderSchema, updateReaderSchema } from "../validations/reader.validation.js";
 import { idSchema } from "../validations/commom.validation.js";
+import authorize from "../middlewares/authorize.middleware.js";
 
 const router = express.Router();
 
-router.use(authMiddleware);
+
 
 router.route("/")
     .post(validate(createReaderSchema, "body"), readerController.create)
 
+router.use(authMiddleware);
 router.route("/:id")
-    .put(validate(idSchema, "params"), validate(updateReaderSchema, "body"), uploadParser.single('avatar'), readerController.update)
+    .put(authorize('user'), validate(idSchema, "params"),
+        uploadParser.single('avatar'),
+        validate(updateReaderSchema, "body"),
+        readerController.update)
 
 
 export default router;

@@ -12,10 +12,7 @@ class ConfigurationService {
         return configuration;
     }
 
-    async findAll() {
-        const result = await this.configurationRepository.findAll();
-        return result;
-    }
+   
     async findByName(name) {
         const result = await this.configurationRepository.findByName(name);
         return result;

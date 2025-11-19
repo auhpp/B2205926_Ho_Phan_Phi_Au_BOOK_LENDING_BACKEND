@@ -6,8 +6,8 @@ import { authenticateSchema } from "../validations/authenticate.validation.js";
 
 const router = express.Router();
 
-router.post("/admin/signin", validate(authenticateSchema, "req.body"), authenticationController.authenticateAdmin)
-router.post("/signin", validate(authenticateSchema, "req.body"), authenticationController.authenticateUser)
+router.post("/admin/signin", validate(authenticateSchema, "body"), authenticationController.authenticateAdmin)
+router.post("/signin", validate(authenticateSchema, "body"), authenticationController.authenticateUser)
 
 router.use(authMiddleware);
 router.get("/user", authenticationController.getCurrentUser)

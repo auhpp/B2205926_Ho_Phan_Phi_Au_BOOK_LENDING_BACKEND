@@ -3,6 +3,7 @@ import { BookCopyStatus } from "../enums/bookCopyStatus.enum.js";
 import { Configuration } from "../enums/configuration.enum.js";
 import { LoanDetailStatus } from "../enums/loanDetailStatus.enum.js";
 import { LoanSlipStatus } from "../enums/loanSlipStatus.enum.js";
+import { Role } from "../enums/role.enum.js";
 import BookCartItemRepository from "../repositories/bookCartItem.repository.js";
 import BookCopyRepository from "../repositories/bookCopy.repository.js";
 import ConfigurationRepository from "../repositories/configuration.repository.js";
@@ -93,24 +94,40 @@ class LoanSlipService {
         return loanSlip;
     }
 
-    async update({ status, loanSlipId, staffId }) {
-        try {
-            const loanSlipAfter = await this.loanSlipRepository.create({
-                _id: loanSlipId, status: status, staffId: staffId,
-            });
-            const loanDetailAfters = await this.loanDetailRepository.updateManyByLoanSlipId({ loanSlipId: loanSlipId, status: status });
-            var bookCopyStatus = status;
-            if (status == LoanSlipStatus.REJECTED) {
-                bookCopyStatus = BookCopyStatus.AVAILABLE;
-            }
-            const loanDetails = await this.loanDetailRepository.findAllByLoanSlipId({ loanSlipId: loanSlipId });
-            loanDetails.forEach(element => {
-                this.bookCopyRepository.create({ status: bookCopyStatus, _id: element.bookCopyId })
-            });
-            return true;
-        } catch (error) {
-            throw new ApiError(400, "Error update loan Slip")
+    async update({ status, loanSlipId, staffId, currentUser }) {
+        const { role, userName, id } = currentUser;
+        const loanSlipDB = await this.loanSlipRepository.findById(loanSlipId);
+        if (!loanSlipDB) {
+            throw new ApiError(400, "Loan slip not found")
         }
+        if (role == Role.USER) {
+            if (loanSlipDB.reader._id.toString() !== id) {
+                throw new ApiError(403, "Forbidden access")
+            }
+            if (status != LoanSlipStatus.REJECTED) {
+                throw new ApiError(403, "User only cancel")
+            }
+        }
+        else if (role == Role.ADMIN) {
+            const allowedStatuses = [LoanSlipStatus.APPROVED, LoanDetailStatus.BORROWED]
+            if (!allowedStatuses.includes(status)) {
+                throw new ApiError(403, "Invalid status")
+            }
+        }
+        const loanSlipAfter = await this.loanSlipRepository.create({
+            _id: loanSlipId, status: status, staffId: staffId,
+        });
+        const loanDetailAfters = await this.loanDetailRepository.updateManyByLoanSlipId({ loanSlipId: loanSlipId, status: status });
+        var bookCopyStatus = status;
+        if (status == LoanSlipStatus.REJECTED) {
+            bookCopyStatus = BookCopyStatus.AVAILABLE;
+        }
+        const loanDetails = await this.loanDetailRepository.findAllByLoanSlipId({ loanSlipId: loanSlipId });
+        loanDetails.forEach(element => {
+            this.bookCopyRepository.create({ status: bookCopyStatus, _id: element.bookCopyId })
+        });
+        return true;
+
     }
 
 }
