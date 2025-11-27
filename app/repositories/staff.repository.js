@@ -1,4 +1,5 @@
 import { ObjectId } from "mongodb";
+import PageResponse from "../dto/response/page.response.js";
 
 class StaffRepository {
     constructor(client) {
@@ -9,7 +10,8 @@ class StaffRepository {
         const staff = {
             userName: payload.userName,
             password: payload.password,
-            active: payload.active
+            active: payload.active,
+            email: payload.email
         };
 
         Object.keys(staff).forEach(
@@ -59,6 +61,24 @@ class StaffRepository {
         const staffs = await this.Staff.find({}).toArray();
         return staffs;
     }
+
+    async findPagination({ page = 1, limit = 10, userName }) {
+        const skip = (page - 1) * limit;
+        const filter = {};
+        if (userName) {
+            filter.userName = userName;
+        }
+        const totalItems = await this.Staff.countDocuments(filter);
+        const result = await this.Staff.find(filter).skip(skip).limit(limit).toArray();
+        const totalPages = Math.ceil(totalItems / limit);
+        return new PageResponse(
+            result,
+            totalItems,
+            totalPages,
+            page
+        );
+    }
+
 }
 
 export default StaffRepository;

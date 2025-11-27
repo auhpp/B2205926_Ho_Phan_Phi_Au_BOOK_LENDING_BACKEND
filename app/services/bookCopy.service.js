@@ -10,7 +10,7 @@ class BookCopyService {
 
     async create(bookCopyRequest) {
         var bookCopies = []
-        var bookCopyCount = await this.bookCopyRepository.countByBookId(bookCopyRequest.bookId);
+        var bookCopyCount = await this.bookCopyRepository.countByBookId(bookCopyRequest.bookId, null);
         for (let i = 0; i < bookCopyRequest.quantity; i++) {
             var barCode = bookCopyRequest.bookId + "-" + (bookCopyCount + 1);
             bookCopyRequest.barCode = barCode;

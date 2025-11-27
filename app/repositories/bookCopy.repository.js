@@ -75,11 +75,14 @@ class BookCopyRepository {
     }
 
     async countByBookId(bookId, status) {
-        const totalBookCopy = await this.BookCopy.countDocuments({
-            bookId: bookId ? new ObjectId(bookId) : new ObjectId(),
-            status: status
-        });
-        return totalBookCopy;
+        const filter = {
+            bookId: new ObjectId(bookId),
+        };
+        if (status) {
+            filter.status = status;
+        }
+        const totalItems = await this.BookCopy.countDocuments(filter);
+        return totalItems;
     }
 
     async findById(id) {

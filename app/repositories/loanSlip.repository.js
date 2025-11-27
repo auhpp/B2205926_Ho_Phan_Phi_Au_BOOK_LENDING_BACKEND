@@ -380,6 +380,86 @@ class LoanSlipRepository {
             return null;
         }
     }
+
+    async findAllByReturnDateAndStatus({ startOfDay, endOfDay, status }) {
+        const matchQuery = {
+            returnDate: {
+                $gte: startOfDay,
+                $lte: endOfDay,
+            },
+            status: status
+        };
+
+        const mainLogicPipeline = [
+            {
+                $match: matchQuery
+            },
+
+            {
+                $lookup: {
+                    from: "DOC_GIA",
+                    localField: "readerId",
+                    foreignField: "_id",
+                    as: "reader"
+                }
+            },
+
+
+            {
+                $unwind: {
+                    path: "$reader",
+                    preserveNullAndEmptyArrays: true
+                }
+            }
+        ];
+
+        try {
+            const loansDue = await this.LoanSlip.aggregate(mainLogicPipeline).toArray();
+            if (loansDue.length > 0) {
+                return loansDue;
+            } else {
+                return [];
+            }
+        } catch (error) {
+            console.log("Lỗi Aggregation:", error);
+            return [];
+        }
+    }
+
+    async findOverdueLoans({ currentStartOfDay }) {
+        const matchQuery = {
+            returnDate: {
+                $lt: currentStartOfDay
+            },
+            status: "borrowed"
+        };
+
+        const pipeline = [
+            { $match: matchQuery },
+            {
+                $lookup: {
+                    from: "DOC_GIA",
+                    localField: "readerId",
+                    foreignField: "_id",
+                    as: "reader"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$reader",
+                    preserveNullAndEmptyArrays: true
+                }
+            }
+        ];
+
+        try {
+            const results = await this.LoanSlip.aggregate(pipeline).toArray();
+            return results || [];
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
 }
 
 export default LoanSlipRepository;

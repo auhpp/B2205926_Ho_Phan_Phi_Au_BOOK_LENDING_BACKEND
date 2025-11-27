@@ -10,18 +10,21 @@ class StaffService {
         this.readerRepository = new ReaderRepository(MongoDB.client);
     }
 
-    async create({ userName, password }) {
+    async create({ userName, password, email }) {
         var staff = await this.staffRepository.findByUserName(userName);
         var reader = await this.readerRepository.findByUserName(userName);
         if (staff != null || reader != null) {
-            throw new ApiError(401, "Username existed");
+            throw new ApiError(400, "Username existed");
         }
         var active = true;
         password = await bcrypt.hash(password, 10);
-        staff = await this.staffRepository.create({ userName: userName, password: password, active: active });
+        staff = await this.staffRepository.create({ userName: userName, password: password, active: active, email: email });
         return staff;
     }
-
+    async update({ active, id }) {
+        const staff = await this.staffRepository.create({ _id: id, active: active });
+        return staff;
+    }
     async existedStaff(userName) {
         const currentUser = await this.staffRepository.findByUserName(userName);
         return currentUser;
@@ -30,6 +33,11 @@ class StaffService {
     async findAll() {
         const staffs = await this.staffRepository.findAll();
         return staffs;
+    }
+
+    async findPagination({ page, limit, userName }) {
+        const staffs = await this.staffRepository.findPagination({ page: page, limit: limit, userName: userName })
+        return staffs
     }
 }
 

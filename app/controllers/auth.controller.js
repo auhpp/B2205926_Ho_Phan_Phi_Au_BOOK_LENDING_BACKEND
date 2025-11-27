@@ -14,7 +14,6 @@ export const authenticateAdmin = async (req, res, next) => {
     } catch (error) {
         return next(error)
     }
-
 }
 
 export const authenticateUser = async (req, res, next) => {
