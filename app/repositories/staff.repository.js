@@ -62,13 +62,17 @@ class StaffRepository {
         return staffs;
     }
 
-    async findPagination({ page = 1, limit = 10, userName }) {
+    async findPagination({ page = 1, limit = 10, userName, active }) {
         const skip = (page - 1) * limit;
         const filter = {};
         if (userName) {
             filter.userName = userName;
         }
+        if (active != undefined && active != null) {
+            filter.active = (String(active) === 'true');
+        }
         const totalItems = await this.Staff.countDocuments(filter);
+        console.log("filter", filter)
         const result = await this.Staff.find(filter).skip(skip).limit(limit).toArray();
         const totalPages = Math.ceil(totalItems / limit);
         return new PageResponse(

@@ -94,11 +94,14 @@ export const updateBookSchema = Joi.object({
             'number.integer': 'Số lượng phải là số nguyên',
             'number.min': 'Số lượng ít nhất là 1',
         }),
-    id: objectId
+    id: objectId,
+    active: Joi.boolean()
 })
 
 
 export const findAllSchema = paginationSchema.append({
-    name: Joi.string().trim().allow('').optional()
+    name: Joi.string().trim().allow('').optional(),
+    active: Joi.boolean()
+
 })
 

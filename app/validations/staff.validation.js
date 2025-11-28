@@ -27,5 +27,6 @@ export const updateStaffSchema = Joi.object({
 
 
 export const findAllSchema = paginationSchema.append({
-    userName: Joi.string().trim().allow('').optional()
+    userName: Joi.string().trim().allow('').optional(),
+    active: Joi.boolean()
 })

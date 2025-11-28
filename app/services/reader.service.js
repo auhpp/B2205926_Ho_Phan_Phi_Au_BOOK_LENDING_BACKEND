@@ -38,6 +38,15 @@ class ReaderService {
         return reader;
     }
 
+    async updateStatus({ _id, active }) {
+        const updatedReader = await this.readerRepository.create({ _id: _id, active: active });
+        return updatedReader;
+    }
+
+    async findPagination({ page, limit, userName, active }) {
+        const readers = await this.readerRepository.findPagination({ page: page, limit: limit, userName: userName, active })
+        return readers
+    }
 }
 
 export default ReaderService;

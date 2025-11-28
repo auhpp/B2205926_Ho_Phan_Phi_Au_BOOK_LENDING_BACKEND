@@ -35,8 +35,8 @@ class StaffService {
         return staffs;
     }
 
-    async findPagination({ page, limit, userName }) {
-        const staffs = await this.staffRepository.findPagination({ page: page, limit: limit, userName: userName })
+    async findPagination({ page, limit, userName, active }) {
+        const staffs = await this.staffRepository.findPagination({ page: page, limit: limit, userName: userName, active: active })
         return staffs
     }
 }

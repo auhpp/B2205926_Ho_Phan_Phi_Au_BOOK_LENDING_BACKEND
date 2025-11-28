@@ -20,6 +20,7 @@ class BookCopyRepository {
     }
 
     async create(payload) {
+        console.log(payload)
         const bookCopy = this.extractData(payload);
         var _id = payload._id;
         const filter = {

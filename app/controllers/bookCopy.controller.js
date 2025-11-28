@@ -16,7 +16,7 @@ export const create = async (req, res, next) => {
 export const update = async (req, res, next) => {
     try {
         const bookCopyService = new BookCopyService()
-        const bookCopy = await bookCopyService.update({ id: req.params.id, ...req.body });
+        const bookCopy = await bookCopyService.update({ _id: req.params.id, ...req.body });
         return res.status(200).json(
             new ApiReponse("succes", "Update a book copy success", bookCopy)
         );

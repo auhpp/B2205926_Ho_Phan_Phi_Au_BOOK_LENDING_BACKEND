@@ -44,8 +44,13 @@ export const findAll = async (req, res, next) => {
         const page = parseInt(req.query.page);
         const limit = parseInt(req.query.limit);
         const name = req.query.name;
+        var active = req.query.active;
+        if (active !== undefined && active !== null) {
+            active = (String(active) === 'true');
+        }
+        console.log(active)
         const bookService = new BookService()
-        const result = await bookService.findAll({ page: page, limit: limit, name: name });
+        const result = await bookService.findAll({ page: page, limit: limit, name: name, user: req.user, active: active });
         return res.status(200).json(
             new ApiReponse("succes", "Find all book success", result)
         );
@@ -71,7 +76,7 @@ export const deleteBook = async (req, res, next) => {
 export const findById = async (req, res, next) => {
     try {
         const bookService = new BookService()
-        const result = await bookService.findById(req.params.id);
+        const result = await bookService.findById(req.params.id, req.user);
         return res.status(200).json(
             new ApiReponse("succes", "Find a book success", result)
         );

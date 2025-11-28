@@ -1,4 +1,5 @@
 import Joi from 'joi'
+import { paginationSchema } from './commom.validation.js'
 
 export const createReaderSchema = Joi.object({
     userName: Joi.string()
@@ -22,7 +23,7 @@ export const createReaderSchema = Joi.object({
 
 
 export const updateReaderSchema = Joi.object({
-    active: Joi.string().trim(),
+    active: Joi.boolean(),
     fullName: Joi.string().trim().max(256),
     email: Joi.string()
         .trim()
@@ -39,4 +40,10 @@ export const updateReaderSchema = Joi.object({
         }),
     gender: Joi.string().trim(),
     dateOfBirth: Joi.date().iso(),
+})
+
+export const findAllSchema = paginationSchema.append({
+    userName: Joi.string().trim().allow('').optional(),
+    active: Joi.boolean()
+
 })

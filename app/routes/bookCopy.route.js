@@ -3,8 +3,7 @@ import * as bookCopyController from "./../controllers/bookCopy.controller.js"
 import authMiddleware from "../middlewares/auth.middleware.js";
 import validate from "../middlewares/validate.middleware.js";
 import { idSchema } from "../validations/commom.validation.js";
-import { createBookCopySchema, findByBookIdSchema } from "../validations/bookCopy.validation.js";
-import { updateBookSchema } from "../validations/book.validation.js";
+import { createBookCopySchema, findByBookIdSchema, updateCopySchema } from "../validations/bookCopy.validation.js";
 import authorize from "../middlewares/authorize.middleware.js";
 
 const router = express.Router();
@@ -16,6 +15,6 @@ router.route("/")
     .get(authorize('admin'), validate(findByBookIdSchema, "query"), bookCopyController.findByBookId)
 
 router.route("/:id")
-    .put(authorize('admin'), validate(idSchema, 'params'), validate(updateBookSchema, "body"), bookCopyController.update)
+    .put(authorize('admin'), validate(idSchema, 'params'), validate(updateCopySchema, "body"), bookCopyController.update)
     .delete(authorize('admin'), validate(idSchema, "params"), bookCopyController.deleteBookCopy)
 export default router;

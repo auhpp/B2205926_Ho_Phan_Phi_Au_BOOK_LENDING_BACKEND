@@ -7,6 +7,7 @@ import BookCopyService from "./bookCopy.service.js";
 import { deleteFromCloudinary, uploadFromBuffer } from "./cloudinary.service.js";
 import { BookCopyStatus } from "../enums/bookCopyStatus.enum.js";
 import LoanDetailRepository from "../repositories/loanDetail.repository.js";
+import { Role } from "../enums/role.enum.js";
 class BookService {
     constructor() {
         this.bookRepository = new BookRepository(MongoDB.client);
@@ -40,6 +41,7 @@ class BookService {
         dataToSave.categories = categories;
         dataToSave.authors = authors;
         dataToSave.publisher = publisher;
+        dataToSave.active = true;
 
         var newBook = await this.bookRepository.create(dataToSave);
 
@@ -50,42 +52,44 @@ class BookService {
     }
 
     async update(bookData, files) {
-        var imageUrls = [];
         const oldBook = await this.bookRepository.findById(bookData.id);
-        if (bookData.images && (oldBook.images.length != bookData.images.length)) {
-            const imageOldDeletes = oldBook.images.filter((item) =>
-                !bookData.images.includes(item)
-            )
-            const deletePromises = imageOldDeletes.map(element => {
-                var start = element.indexOf("book-lending-project");
-                const public_id = element.substring(start, element.lastIndexOf('.'));
-                console.log(public_id);
+        var imageUrls = oldBook.images;
+        if (bookData.images || files && files.length != 0) {
+            if (bookData.images && (oldBook.images.length != bookData.images.length)) {
+                const imageOldDeletes = oldBook.images.filter((item) =>
+                    !bookData.images.includes(item)
+                )
+                const deletePromises = imageOldDeletes.map(element => {
+                    var start = element.indexOf("book-lending-project");
+                    const public_id = element.substring(start, element.lastIndexOf('.'));
+                    console.log(public_id);
 
-                return deleteFromCloudinary(public_id);
-            });
-            await Promise.all(deletePromises);
-        }
-        else if (!bookData.images) {
-            const deletePromises = oldBook.images.map(element => {
-                var start = element.indexOf("book-lending-project");
-                const public_id = element.substring(start, element.lastIndexOf('.'));
-                console.log(public_id);
+                    return deleteFromCloudinary(public_id);
+                });
+                await Promise.all(deletePromises);
+            }
+            else if (!bookData.images) {
+                const deletePromises = oldBook.images.map(element => {
+                    var start = element.indexOf("book-lending-project");
+                    const public_id = element.substring(start, element.lastIndexOf('.'));
+                    console.log(public_id);
 
-                return deleteFromCloudinary(public_id);
-            });
-            await Promise.all(deletePromises);
-        }
-        if (bookData.images && bookData.images.length > 0) {
-            if (Array.isArray(bookData.images)) {
-                imageUrls.push(...bookData.images)
+                    return deleteFromCloudinary(public_id);
+                });
+                await Promise.all(deletePromises);
             }
-            else {
-                imageUrls.push(bookData.images);
+            if (bookData.images && bookData.images.length > 0) {
+                if (Array.isArray(bookData.images)) {
+                    imageUrls.push(...bookData.images)
+                }
+                else {
+                    imageUrls.push(bookData.images);
+                }
             }
-        }
-        if (files && files.length != 0) {
-            const uploadPromises = files.map(file => uploadFromBuffer(file));
-            imageUrls.push(...(await Promise.all(uploadPromises)));
+            if (files && files.length != 0) {
+                const uploadPromises = files.map(file => uploadFromBuffer(file));
+                imageUrls.push(...(await Promise.all(uploadPromises)));
+            }
         }
 
         var dataToSave = {
@@ -116,8 +120,12 @@ class BookService {
     }
 
 
-    async findAll({ page = 1, limit = 10, name = "" }) {
-        const books = await this.bookRepository.findAll({ page: page, limit: limit, name: name });
+    async findAll({ page = 1, limit = 10, name = "", user, active }) {
+        var activeFilter = active;
+        if (user.role == Role.USER) {
+            activeFilter = true
+        }
+        const books = await this.bookRepository.findAll({ page: page, limit: limit, name: name, active: activeFilter });
         return books;
     }
 
@@ -140,10 +148,16 @@ class BookService {
         return book
     }
 
-    async findById(id) {
-        const book = await this.bookRepository.findById(id);
-        const cntBookCopy = await this.bookCopyService.countByBookId(id, BookCopyStatus.AVAILABLE);
-        book.bookCopyQuantity = cntBookCopy;
+    async findById(id, user) {
+        var active = null;
+        if (user.role == Role.USER) {
+            active = true
+        }
+        const book = await this.bookRepository.findById(id, active);
+        if (book) {
+            const cntBookCopy = await this.bookCopyService.countByBookId(id, BookCopyStatus.AVAILABLE);
+            book.bookCopyQuantity = cntBookCopy;
+        }
         return book;
     }
 }

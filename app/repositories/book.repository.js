@@ -13,7 +13,8 @@ class BookRepository {
             authors: payload.authors,
             images: payload.images,
             categories: payload.categories,
-            publisher: payload.publisher
+            publisher: payload.publisher,
+            active: payload.active
         };
 
         Object.keys(book).forEach(
@@ -49,7 +50,7 @@ class BookRepository {
         return result;
     }
 
-    async findAll({ authorId, publisherId, categoryId, page = 1, limit = 10, name }) {
+    async findAll({ authorId, publisherId, categoryId, page = 1, limit = 10, name, active }) {
         const skip = (page - 1) * limit;
         const filterQuery = {};
         if (name) {
@@ -67,7 +68,11 @@ class BookRepository {
             if (!ObjectId.isValid(categoryId)) { return []; }
             filterQuery['categories._id'] = new ObjectId(categoryId);
         }
+        if (active != undefined && active != null) {
 
+            filterQuery['active'] = active;
+        }
+        console.log(filterQuery)
         const totalItems = await this.Book.countDocuments(filterQuery);
         const totalPages = Math.ceil(totalItems / limit);
 
@@ -85,7 +90,19 @@ class BookRepository {
             },
             {
                 $addFields: {
-                    bookCopyCount: { $size: "$copies" }
+                    bookCopyCount: { $size: "$copies" },
+
+                    availableCopyCount: {
+                        $size: {
+                            $filter: {
+                                input: "$copies",
+                                as: "copy",
+                                cond: {
+                                    $eq: ["$$copy.status", "available"]
+                                }
+                            }
+                        }
+                    }
                 }
             },
             {
@@ -103,10 +120,14 @@ class BookRepository {
         );
     }
 
-    async findById(id) {
-        const book = this.Book.findOne({
+    async findById(id, active) {
+        var filter = {
             _id: id ? new ObjectId(id) : new ObjectId()
-        });
+        }
+        if (active) {
+            filter.active = active
+        }
+        const book = this.Book.findOne(filter);
         return book;
     }
 }
