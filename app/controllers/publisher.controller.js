@@ -7,7 +7,7 @@ export const create = async (req, res, next) => {
         const publisherService = new PublisherService();
         const publisher = await publisherService.create({ name: req.body.name });
         return res.status(200).json(
-            new ApiReponse("succes", "Create a publisher success", publisher)
+            new ApiReponse("success", "Create a publisher success", publisher)
         );
     } catch (error) {
         return next(error)
@@ -19,7 +19,7 @@ export const update = async (req, res, next) => {
         const publisherService = new PublisherService();
         const publisher = await publisherService.update({ _id: req.params.id, name: req.body.name });
         return res.status(200).json(
-            new ApiReponse("succes", "Create a publisher success", publisher)
+            new ApiReponse("success", "Create a publisher success", publisher)
         );
     } catch (error) {
         return next(error)
@@ -35,7 +35,7 @@ export const findPagination = async (req, res, next) => {
         const name = req.query.name;
         publishers = await publisherService.findPagination({ page: page, limit: limit, name: name });
         return res.status(200).json(
-            new ApiReponse("succes", "Find all publisher success", publishers)
+            new ApiReponse("success", "Find all publisher success", publishers)
         );
     } catch (error) {
         return next(error)
@@ -48,7 +48,7 @@ export const findAll = async (req, res, next) => {
         const publisherService = new PublisherService();
         publishers = await publisherService.findAll();
         return res.status(200).json(
-            new ApiReponse("succes", "Find all publisher success", publishers)
+            new ApiReponse("success", "Find all publisher success", publishers)
         );
     } catch (error) {
         return next(error)

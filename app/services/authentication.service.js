@@ -6,6 +6,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import MongoDB from "../utils/mongodb.util.js";
 import { Role } from "../enums/role.enum.js";
+import OtpService from "./otp.service.js";
 
 class AuthenticationService {
     constructor() {
@@ -68,6 +69,28 @@ class AuthenticationService {
         }
     }
 
+    async resetPassword({ userName, otp, newPassword, role }) {
+        var account;
+        if (Role.ADMIN == role) {
+            account = await this.staffRepository.findByUserName(userName);
+        }
+        else {
+            account = await this.readerRepository.findByUserName(userName);
+        }
+        if (!account) {
+            throw new ApiError(400, "Username not existed")
+        }
+        const otpService = new OtpService();
+        await otpService.verifyOtp(otp, userName);
+        const password = await bcrypt.hash(newPassword, 10);
+        if (Role.ADMIN == role) {
+            await this.staffRepository.create({ _id: account._id, password: password })
+        }
+        else {
+            await this.readerRepository.create({ _id: account._id, password: password })
+        }
+        await otpService.cleanOtp(userName)
+    }
 
 }
 

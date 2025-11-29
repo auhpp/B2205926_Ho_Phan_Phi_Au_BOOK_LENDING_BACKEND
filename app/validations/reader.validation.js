@@ -39,7 +39,7 @@ export const updateReaderSchema = Joi.object({
             'string.pattern.base': 'Số điện thoại phải bao gồm 10 chữ số',
         }),
     gender: Joi.string().trim(),
-    dateOfBirth: Joi.date().iso(),
+    dateOfBirth: Joi.date().iso().allow(null, '', 'undefined').optional()
 })
 
 export const findAllSchema = paginationSchema.append({

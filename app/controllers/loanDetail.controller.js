@@ -6,7 +6,7 @@ export const update = async (req, res, next) => {
         const loanDetailService = new LoanDetailService();
         const loanDetailUpdated = await loanDetailService.update({ id: req.params.id, ...req.body });
         return res.status(200).json(
-            new ApiReponse("succes", "Update a loan detail success", loanDetailUpdated)
+            new ApiReponse("success", "Update a loan detail success", loanDetailUpdated)
         );
     } catch (error) {
         return next(error)

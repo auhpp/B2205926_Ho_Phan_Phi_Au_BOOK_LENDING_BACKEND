@@ -11,7 +11,12 @@ class StaffRepository {
             userName: payload.userName,
             password: payload.password,
             active: payload.active,
-            email: payload.email
+            fullName: payload.fullName,
+            email: payload.email,
+            phoneNumber: payload.phoneNumber,
+            gender: payload.gender,
+            dateOfBirth: payload.dateOfBirth,
+            avatar: payload.avatar
         };
 
         Object.keys(staff).forEach(
@@ -72,7 +77,6 @@ class StaffRepository {
             filter.active = (String(active) === 'true');
         }
         const totalItems = await this.Staff.countDocuments(filter);
-        console.log("filter", filter)
         const result = await this.Staff.find(filter).skip(skip).limit(limit).toArray();
         const totalPages = Math.ceil(totalItems / limit);
         return new PageResponse(
@@ -81,6 +85,27 @@ class StaffRepository {
             totalPages,
             page
         );
+    }
+
+    async update(payload) {
+        const staff = this.extractStaffData(payload);
+        var _id = payload._id;
+        const filter = {
+            _id: _id ? new ObjectId(_id) : new ObjectId()
+        };
+
+        const update = {
+            $set: staff
+        }
+        const options = {
+            upsert: true,
+            returnDocument: "after"
+        }
+        const result = await this.Staff.findOneAndUpdate(
+            filter, update, options
+        );
+        const { password, ...userWithoutPassword } = result;
+        return userWithoutPassword;
     }
 
 }

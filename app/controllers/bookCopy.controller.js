@@ -6,7 +6,7 @@ export const create = async (req, res, next) => {
         const bookCopyService = new BookCopyService()
         const bookCopy = await bookCopyService.create(req.body);
         return res.status(200).json(
-            new ApiReponse("succes", "Create a book copy success", bookCopy)
+            new ApiReponse("success", "Create a book copy success", bookCopy)
         );
     } catch (error) {
         return next(error)
@@ -18,7 +18,7 @@ export const update = async (req, res, next) => {
         const bookCopyService = new BookCopyService()
         const bookCopy = await bookCopyService.update({ _id: req.params.id, ...req.body });
         return res.status(200).json(
-            new ApiReponse("succes", "Update a book copy success", bookCopy)
+            new ApiReponse("success", "Update a book copy success", bookCopy)
         );
     } catch (error) {
         return next(error)
@@ -34,7 +34,7 @@ export const findByBookId = async (req, res, next) => {
         const bookCopyService = new BookCopyService()
         const result = await bookCopyService.findAll({ bookId: bookId, page: page, limit: limit, status: status });
         return res.status(200).json(
-            new ApiReponse("succes", "Find all book copy success", result)
+            new ApiReponse("success", "Find all book copy success", result)
         );
     } catch (error) {
         return next(error)

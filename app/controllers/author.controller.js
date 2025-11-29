@@ -7,7 +7,7 @@ export const create = async (req, res, next) => {
         const authorService = new AuthorService();
         const author = await authorService.create({ _id: req.body.id, name: req.body.name });
         return res.status(200).json(
-            new ApiReponse("succes", "Create a author success", author)
+            new ApiReponse("success", "Create a author success", author)
         );
     } catch (error) {
         return next(error);
@@ -19,7 +19,7 @@ export const update = async (req, res, next) => {
         const authorService = new AuthorService();
         const author = await authorService.update({ _id: req.params.id, name: req.body.name });
         return res.status(200).json(
-            new ApiReponse("succes", "Create a author success", author)
+            new ApiReponse("success", "Create a author success", author)
         );
     } catch (error) {
         return next(error);
@@ -35,7 +35,7 @@ export const findPagination = async (req, res, next) => {
         const name = req.query.name;
         authors = await authorService.findPagination({ page: page, limit: limit, name });
         return res.status(200).json(
-            new ApiReponse("succes", "Find all author success", authors)
+            new ApiReponse("success", "Find all author success", authors)
         );
     } catch (error) {
         return next(error);
@@ -48,7 +48,7 @@ export const findAll = async (req, res, next) => {
         const authorService = new AuthorService();
         authors = await authorService.findAll();
         return res.status(200).json(
-            new ApiReponse("succes", "Find all author success", authors)
+            new ApiReponse("success", "Find all author success", authors)
         );
     } catch (error) {
         return next(error);

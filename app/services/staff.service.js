@@ -3,6 +3,7 @@ import ReaderRepository from "../repositories/reader.repository.js";
 import StaffRepository from "../repositories/staff.repository.js";
 import MongoDB from "../utils/mongodb.util.js";
 import bcrypt from 'bcrypt';
+import { uploadFromBuffer } from "./cloudinary.service.js";
 
 class StaffService {
     constructor() {
@@ -21,6 +22,22 @@ class StaffService {
         staff = await this.staffRepository.create({ userName: userName, password: password, active: active, email: email });
         return staff;
     }
+
+    async updateInfo(payload, avatar, currentUser) {
+        const { userName } = currentUser;
+        const staffDB = await this.staffRepository.findById(payload._id);
+        if (staffDB.userName !== userName) {
+            throw new ApiError(403, "Forbidden access")
+        }
+        var imageUrl = undefined;
+        if (avatar != null) {
+            imageUrl = await uploadFromBuffer(avatar);
+        }
+        payload.avatar = imageUrl;
+        const staff = await this.staffRepository.update(payload);
+        return staff;
+    }
+
     async update({ active, id }) {
         const staff = await this.staffRepository.create({ _id: id, active: active });
         return staff;

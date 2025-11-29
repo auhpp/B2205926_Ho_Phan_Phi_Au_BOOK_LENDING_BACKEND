@@ -5,6 +5,7 @@ import { createStaffSchema, findAllSchema, updateStaffSchema } from "../validati
 import validate from "../middlewares/validate.middleware.js";
 import authorize from "../middlewares/authorize.middleware.js";
 import { idSchema } from "../validations/commom.validation.js";
+import uploadParser from "../middlewares/formParser.middleware.js";
 
 const router = express.Router();
 
@@ -18,6 +19,11 @@ router.route("/all")
     .get(authorize("admin"), staffController.findAll);
 
 router.route("/:id")
-    .put(authorize('admin'), validate(idSchema, "params"), validate(updateStaffSchema, "body"), staffController.update)
+    .put(authorize('admin'), validate(idSchema, "params"),
+        uploadParser.single('avatar'),
+        validate(updateStaffSchema, "body"),
+        staffController.updateInfo)
 
+router.route("/admin/:id")
+    .put(authorize('admin'), validate(idSchema, "params"), validate(updateStaffSchema, "body"), staffController.update)
 export default router;

@@ -7,7 +7,7 @@ export const create = async (req, res, next) => {
         const penaltyTicketservice = new PenaltyTicketService();
         const result = penaltyTicketservice.create(req.body);
         return res.status(200).json(
-            new ApiReponse("succes", "Create a penalty ticket success", result)
+            new ApiReponse("success", "Create a penalty ticket success", result)
         );
     } catch (error) {
         return next(error)
@@ -20,7 +20,7 @@ export const update = async (req, res, next) => {
         const penaltyTicketservice = new PenaltyTicketService();
         const result = penaltyTicketservice.update({ id: req.params.id, ...req.body });
         return res.status(200).json(
-            new ApiReponse("succes", "Update a penalty ticket success", result)
+            new ApiReponse("success", "Update a penalty ticket success", result)
         );
     } catch (error) {
         return next(error)
@@ -37,7 +37,7 @@ export const findAll = async (req, res, next) => {
         const id = req.query.id;
         const penaltyTickets = await penaltyTicketservice.findPagination({ page: page, limit: limit, paymentStatus: paymentStatus, id: id });
         return res.status(200).json(
-            new ApiReponse("succes", "Find all penalty ticket success", penaltyTickets)
+            new ApiReponse("success", "Find all penalty ticket success", penaltyTickets)
         );
     } catch (error) {
         return next(error)
@@ -50,7 +50,7 @@ export const findById = async (req, res, next) => {
         const penaltyTicketservice = new PenaltyTicketService();
         const result = await penaltyTicketservice.findById(req.params.id);
         return res.status(200).json(
-            new ApiReponse("succes", "Find a penalty ticket by id success", result)
+            new ApiReponse("success", "Find a penalty ticket by id success", result)
         );
     } catch (error) {
         return next(error)

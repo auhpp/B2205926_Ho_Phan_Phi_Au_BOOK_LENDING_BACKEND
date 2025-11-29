@@ -12,7 +12,7 @@ export const create = async (req, res, next) => {
         }
         const newBook = await bookService.create(bookData, files);
         return res.status(201).json(
-            new ApiReponse("succes", "Create a book success", newBook)
+            new ApiReponse("success", "Create a book success", newBook)
         );
     } catch (error) {
         return next(error);
@@ -32,7 +32,7 @@ export const update = async (req, res, next) => {
         const files = req.files;
         const newBook = await bookService.update(bookData, files);
         return res.status(201).json(
-            new ApiReponse("succes", "Update a book success", newBook)
+            new ApiReponse("success", "Update a book success", newBook)
         );
     } catch (error) {
         return next(error);
@@ -52,7 +52,7 @@ export const findAll = async (req, res, next) => {
         const bookService = new BookService()
         const result = await bookService.findAll({ page: page, limit: limit, name: name, user: req.user, active: active });
         return res.status(200).json(
-            new ApiReponse("succes", "Find all book success", result)
+            new ApiReponse("success", "Find all book success", result)
         );
     } catch (error) {
         return next(error);
@@ -78,7 +78,7 @@ export const findById = async (req, res, next) => {
         const bookService = new BookService()
         const result = await bookService.findById(req.params.id, req.user);
         return res.status(200).json(
-            new ApiReponse("succes", "Find a book success", result)
+            new ApiReponse("success", "Find a book success", result)
         );
     } catch (error) {
         return next(error);

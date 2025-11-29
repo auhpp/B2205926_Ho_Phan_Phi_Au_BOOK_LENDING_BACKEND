@@ -7,7 +7,7 @@ export const create = async (req, res, next) => {
         const categoryService = new CategoryService();
         const category = await categoryService.create({ name: req.body.name });
         return res.status(200).json(
-            new ApiReponse("succes", "Create a category success", category)
+            new ApiReponse("success", "Create a category success", category)
         );
     } catch (error) {
         return next(error)
@@ -19,7 +19,7 @@ export const update = async (req, res, next) => {
         const categoryService = new CategoryService();
         const category = await categoryService.update({ _id: req.params.id, name: req.body.name });
         return res.status(200).json(
-            new ApiReponse("succes", "Update a category success", category)
+            new ApiReponse("success", "Update a category success", category)
         );
     } catch (error) {
         return next(error)
@@ -35,7 +35,7 @@ export const findPagination = async (req, res, next) => {
         const name = req.query.name;
         categories = await categoryService.findPagination({ page: page, limit: limit, name });
         return res.status(200).json(
-            new ApiReponse("succes", "Find all category success", categories)
+            new ApiReponse("success", "Find all category success", categories)
         );
     } catch (error) {
         return next(error)
@@ -48,7 +48,7 @@ export const findAll = async (req, res, next) => {
         const categoryService = new CategoryService();
         categories = await categoryService.findAll();
         return res.status(200).json(
-            new ApiReponse("succes", "Find all category success", categories)
+            new ApiReponse("success", "Find all category success", categories)
         );
     } catch (error) {
         return next(error)

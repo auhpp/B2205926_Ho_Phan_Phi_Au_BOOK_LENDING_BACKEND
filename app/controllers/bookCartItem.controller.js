@@ -9,7 +9,7 @@ export const create = async (req, res, next) => {
             quantity: req.body.quantity, bookId: req.body.bookId, readerId: req.user.id
         });
         return res.status(200).json(
-            new ApiReponse("succes", "Create a bookCartItem success", bookCartItem)
+            new ApiReponse("success", "Create a bookCartItem success", bookCartItem)
         );
     }
     catch (error) {
@@ -37,7 +37,7 @@ export const findAll = async (req, res, next) => {
         const bookCartItemService = new BookCartItemService();
         const result = await bookCartItemService.findPagination({ readerId: req.user.id, page: page, limit: limit });
         return res.status(200).json(
-            new ApiReponse("succes", "Find all book cart item success", result)
+            new ApiReponse("success", "Find all book cart item success", result)
         );
     }
     catch (error) {
@@ -50,7 +50,7 @@ export const countDocuments = async (req, res, next) => {
         const bookCartItemService = new BookCartItemService();
         const result = await bookCartItemService.countDocuments(req.user.id);
         return res.status(200).json(
-            new ApiReponse("succes", "Count book cart item success", result)
+            new ApiReponse("success", "Count book cart item success", result)
         );
     } catch (error) {
         return next(error)

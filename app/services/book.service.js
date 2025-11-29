@@ -53,7 +53,7 @@ class BookService {
 
     async update(bookData, files) {
         const oldBook = await this.bookRepository.findById(bookData.id);
-        var imageUrls = oldBook.images;
+        var imageUrls = [];
         if (bookData.images || files && files.length != 0) {
             if (bookData.images && (oldBook.images.length != bookData.images.length)) {
                 const imageOldDeletes = oldBook.images.filter((item) =>
@@ -96,7 +96,7 @@ class BookService {
             ...bookData,
             images: imageUrls.length == 0 ? undefined : imageUrls
         }
-
+        console.log("book image", dataToSave.images)
         if (bookData.categoryIds) {
             const categories = await Promise.all(
                 bookData.categoryIds.map(id => this.categoryRepository.findById(id))
