@@ -1,6 +1,7 @@
 import ApiReponse from "../dto/response/api.response.js";
 import PenaltyTicketService from "../services/penaltyTicket.service.js";
 import ApiError from "../api-error.js";
+import { Role } from "../enums/role.enum.js"
 
 export const create = async (req, res, next) => {
     try {
@@ -34,8 +35,23 @@ export const findAll = async (req, res, next) => {
         const page = parseInt(req.query.page);
         const limit = parseInt(req.query.limit);
         const paymentStatus = req.query.paymentStatus;
-        const id = req.query.id;
-        const penaltyTickets = await penaltyTicketservice.findPagination({ page: page, limit: limit, paymentStatus: paymentStatus, id: id });
+        const currentUser = req.user
+        const readerId = currentUser.role == Role.ADMIN ? null : currentUser.id
+        const keyword = req.query.keyword;
+        const isPhoneNumber = /^[0-9]+$/.test(keyword) && keyword.startsWith('0');
+        var readerPhoneNumber;
+        var id;
+        if (isPhoneNumber) {
+            readerPhoneNumber = keyword
+        } else {
+            id = keyword
+        }
+        const penaltyTickets = await penaltyTicketservice.findPagination({
+            page: page, limit: limit,
+            paymentStatus: paymentStatus, id: id,
+            readerId: readerId,
+            readerPhoneNumber: readerPhoneNumber
+        });
         return res.status(200).json(
             new ApiReponse("success", "Find all penalty ticket success", penaltyTickets)
         );

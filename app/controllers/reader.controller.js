@@ -49,9 +49,20 @@ export const findPagination = async (req, res, next) => {
         const readerService = new ReaderService();
         const page = parseInt(req.query.page);
         const limit = parseInt(req.query.limit);
-        const userName = req.query.userName;
         const active = req.query.active;
-        readers = await readerService.findPagination({ page: page, limit: limit, userName: userName, active: active });
+        const keyword = req.query.keyword;
+        const isPhoneNumber = /^[0-9]+$/.test(keyword) && keyword.startsWith('0');
+        var readerPhoneNumber;
+        var userName;
+        if (isPhoneNumber) {
+            readerPhoneNumber = keyword
+        } else {
+            userName = keyword
+        }
+        readers = await readerService.findPagination({
+            page: page, limit: limit, userName: userName,
+            readerPhoneNumber: readerPhoneNumber, active: active
+        });
         return res.status(200).json(
             new ApiReponse("success", "Find pagination reader success", readers)
         );
@@ -63,7 +74,7 @@ export const findPagination = async (req, res, next) => {
 export const sendOTPResetPassword = async (req, res, next) => {
     try {
         const email = req.body.email;
-        
+
     } catch (error) {
         return next(error)
     }

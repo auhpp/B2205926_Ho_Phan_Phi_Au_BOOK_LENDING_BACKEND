@@ -65,9 +65,20 @@ export const findPagination = async (req, res, next) => {
         const staffService = new StaffService();
         const page = parseInt(req.query.page);
         const limit = parseInt(req.query.limit);
-        const userName = req.query.userName;
         const active = req.query.active;
-        staffs = await staffService.findPagination({ page: page, limit: limit, userName: userName, active: active });
+        const keyword = req.query.keyword;
+        const isPhoneNumber = /^[0-9]+$/.test(keyword) && keyword.startsWith('0');
+        var staffPhoneNumber;
+        var userName;
+        if (isPhoneNumber) {
+            staffPhoneNumber = keyword
+        } else {
+            userName = keyword
+        }
+        staffs = await staffService.findPagination({
+            page: page, limit: limit, userName: userName,
+            staffPhoneNumber: staffPhoneNumber, active: active
+        });
         return res.status(200).json(
             new ApiReponse("success", "Find pagination staff success", staffs)
         );

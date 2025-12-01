@@ -44,10 +44,10 @@ class PenaltyTicketRepository {
         return result;
     }
 
-    async findPagination({ page = 1, limit = 10, paymentStatus, id }) {
+    async findPagination({ page = 1, limit = 10, paymentStatus, id, readerId }) {
         const skip = (page - 1) * limit;
-
         const matchQuery = {};
+        console.log("reader id", readerId)
         if (id) {
             matchQuery._id = new ObjectId(id);
         }
@@ -119,7 +119,11 @@ class PenaltyTicketRepository {
                 }
             },
             { $unwind: { path: '$reader', preserveNullAndEmptyArrays: true } },
-
+            ...(readerId ? [{
+                $match: {
+                    'reader._id': new ObjectId(readerId)
+                }
+            }] : []),
             {
                 $project: {
                     _id: 1,
@@ -141,6 +145,8 @@ class PenaltyTicketRepository {
                         _id: '$reader._id',
                         fullName: '$reader.fullName',
                         userName: '$reader.userName',
+                        phoneNumber: '$reader.phoneNumber',
+
                     },
 
                     bookCopy: {

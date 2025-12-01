@@ -87,3 +87,20 @@ export const resetPassword = async (req, res, next) => {
         return next(error);
     }
 }
+
+export const changePassword = async (req, res, next) => {
+    try {
+        const authenticationService = new AuthenticationService();
+        const { oldPassword, newPassword } = req.body;
+        const currentUser = req.user;
+        const response = await authenticationService.changePassword({
+            currentUser: currentUser, oldPassword: oldPassword,
+            newPassword: newPassword
+        })
+        return res.status(200).json(
+            new ApiReponse("success", "Change password success", response)
+        );
+    } catch (error) {
+        return next(error)
+    }
+}

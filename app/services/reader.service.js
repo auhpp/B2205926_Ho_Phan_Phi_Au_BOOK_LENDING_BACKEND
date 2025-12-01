@@ -47,8 +47,18 @@ class ReaderService {
         return updatedReader;
     }
 
-    async findPagination({ page, limit, userName, active }) {
-        const readers = await this.readerRepository.findPagination({ page: page, limit: limit, userName: userName, active })
+    async findPagination({ page, limit, userName, active, readerPhoneNumber }) {
+        var userNameParam = userName
+        if (readerPhoneNumber) {
+            const reader = await this.readerRepository.findByPhoneNumber(readerPhoneNumber)
+            if (reader) {
+                userNameParam = reader.userName;
+            }
+            else {
+                return []
+            }
+        }
+        const readers = await this.readerRepository.findPagination({ page: page, limit: limit, userName: userNameParam, active })
         return readers
     }
 }

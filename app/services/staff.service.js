@@ -52,8 +52,21 @@ class StaffService {
         return staffs;
     }
 
-    async findPagination({ page, limit, userName, active }) {
-        const staffs = await this.staffRepository.findPagination({ page: page, limit: limit, userName: userName, active: active })
+    async findPagination({ page, limit, userName, active, staffPhoneNumber }) {
+        var userNameParam = userName
+        if (staffPhoneNumber) {
+            const staff = await this.staffRepository.findByPhoneNumber(staffPhoneNumber)
+            if (staff) {
+                userNameParam = staff.userName;
+            }
+            else {
+                return []
+            }
+        }
+        const staffs = await this.staffRepository.findPagination({
+            page: page, limit: limit,
+            userName: userNameParam, active: active
+        })
         return staffs
     }
 }

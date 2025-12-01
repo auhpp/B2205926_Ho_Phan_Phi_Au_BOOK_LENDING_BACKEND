@@ -9,6 +9,8 @@ import BookCopyRepository from "../repositories/bookCopy.repository.js";
 import ConfigurationRepository from "../repositories/configuration.repository.js";
 import LoanDetailRepository from "../repositories/loanDetail.repository.js";
 import LoanSlipRepository from "../repositories/loanSlip.repository.js";
+import ReaderRepository from "../repositories/reader.repository.js";
+
 import MongoDB from "../utils/mongodb.util.js";
 
 class LoanSlipService {
@@ -18,6 +20,7 @@ class LoanSlipService {
         this.configurationRepository = new ConfigurationRepository(MongoDB.client)
         this.loanDetailRepository = new LoanDetailRepository(MongoDB.client);
         this.cartRepository = new BookCartItemRepository(MongoDB.client);
+        this.readerRepository = new ReaderRepository(MongoDB.client)
     }
 
     async create(payload) {
@@ -83,8 +86,22 @@ class LoanSlipService {
     }
 
 
-    async findAll({ page = 1, limit = 10, status, id }) {
-        const loanSlips = await this.loanSlipRepository.findAll({ page: page, limit: limit, status: status, id: id });
+    async findAll({ page = 1, limit = 10, status, id, readerId, readerPhoneNumber }) {
+        var readerIdParam = readerId
+        if (readerPhoneNumber) {
+            const reader = await this.readerRepository.findByPhoneNumber(readerPhoneNumber)
+            if (reader) {
+                readerIdParam = reader._id;
+            }
+            else {
+                return []
+            }
+        }
+        const loanSlips = await this.loanSlipRepository.findAll({
+            page: page, limit: limit, status: status, id: id,
+            readerId: readerIdParam
+        });
+
         return loanSlips;
     }
 

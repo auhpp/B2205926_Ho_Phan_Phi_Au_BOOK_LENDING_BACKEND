@@ -31,4 +31,6 @@ export const updatePenaltyTicketSchema = Joi.object({
 
 export const findAllSchema = paginationSchema.append({
     paymentStatus: Joi.string().trim().allow(""),
+    keyword: Joi.string().allow('')
+
 })

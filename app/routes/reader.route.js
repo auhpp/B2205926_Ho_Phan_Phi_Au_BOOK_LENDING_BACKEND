@@ -9,11 +9,12 @@ import authorize from "../middlewares/authorize.middleware.js";
 
 const router = express.Router();
 
+router.route("/")
+    .post(validate(createReaderSchema, "body"), readerController.create)
 
 router.use(authMiddleware);
 
 router.route("/")
-    .post(validate(createReaderSchema, "body"), readerController.create)
     .get(authorize("admin"), validate(findAllSchema, "query"), readerController.findPagination);
 
 

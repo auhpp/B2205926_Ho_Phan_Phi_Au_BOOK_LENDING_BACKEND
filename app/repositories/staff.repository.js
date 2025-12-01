@@ -107,6 +107,11 @@ class StaffRepository {
         const { password, ...userWithoutPassword } = result;
         return userWithoutPassword;
     }
+    async findByPhoneNumber(phoneNumber) {
+        return await this.Staff.findOne({
+            phoneNumber: phoneNumber
+        });
+    }
 
 }
 

@@ -2,7 +2,7 @@ import express from "express";
 import * as authenticationController from "./../controllers/auth.controller.js";
 import authMiddleware from "../middlewares/auth.middleware.js";
 import validate from "../middlewares/validate.middleware.js";
-import { authenticateSchema, resetPasswordSchema, sendOtpSchema, verifyOtpSchema } from "../validations/authenticate.validation.js";
+import { authenticateSchema, changePasswordSchema, resetPasswordSchema, sendOtpSchema, verifyOtpSchema } from "../validations/authenticate.validation.js";
 
 const router = express.Router();
 
@@ -14,4 +14,6 @@ router.post("/resetPassword", validate(resetPasswordSchema, "body"), authenticat
 
 router.use(authMiddleware);
 router.get("/user", authenticationController.getCurrentUser)
+router.post("/changePassword", validate(changePasswordSchema, "body"), authenticationController.changePassword)
+
 export default router;

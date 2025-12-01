@@ -31,6 +31,12 @@ class ReaderRepository {
         });
     }
 
+    async findByPhoneNumber(phoneNumber) {
+        return await this.Reader.findOne({
+            phoneNumber: phoneNumber
+        });
+    }
+
     async create(payload) {
         const reader = this.extractReaderData(payload);
         var _id = payload._id;

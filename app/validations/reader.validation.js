@@ -15,6 +15,7 @@ export const createReaderSchema = Joi.object({
     password: Joi.string()
         .trim()
         .required()
+        .pattern(new RegExp('^[a-zA-Z0-9!@#$%^&*]{3,30}$'))
         .messages({
             'string.empty': 'Password không được để trống',
             'any.required': 'Password là bắt buộc',
@@ -43,7 +44,7 @@ export const updateReaderSchema = Joi.object({
 })
 
 export const findAllSchema = paginationSchema.append({
-    userName: Joi.string().trim().allow('').optional(),
+    keyword: Joi.string().trim().allow('').optional(),
     active: Joi.boolean()
 
 })

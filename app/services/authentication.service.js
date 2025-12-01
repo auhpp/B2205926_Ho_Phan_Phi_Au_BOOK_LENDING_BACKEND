@@ -92,6 +92,25 @@ class AuthenticationService {
         await otpService.cleanOtp(userName)
     }
 
+
+    async changePassword({ currentUser, newPassword, oldPassword }) {
+        const { role, userName } = currentUser;
+        const user = await this.getCurrentUser({ userName: userName, role: role })
+        if (user.userName != userName) {
+            throw new ApiError(403, "Forbidden")
+        }
+        const isCorrectPassword = await bcrypt.compare(oldPassword, user.password);
+        if (!isCorrectPassword) {
+            throw new ApiError(400, "Wrong password")
+        }
+        const password = await bcrypt.hash(newPassword, 10);
+        if (Role.ADMIN == role) {
+            await this.staffRepository.create({ _id: user._id, password: password })
+        }
+        else {
+            await this.readerRepository.create({ _id: user._id, password: password })
+        }
+    }
 }
 
 

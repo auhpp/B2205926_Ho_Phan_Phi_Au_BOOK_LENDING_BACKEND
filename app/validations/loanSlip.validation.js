@@ -39,5 +39,5 @@ export const updateLoanSlipSchema = Joi.object({
 
 export const findAllSchema = paginationSchema.append({
     status: Joi.string().trim().allow(''),
-    id: objectIdRule.allow('')
+    keyword: Joi.string().allow('')
 })

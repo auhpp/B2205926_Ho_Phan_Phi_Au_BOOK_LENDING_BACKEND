@@ -71,3 +71,22 @@ export const resetPasswordSchema = Joi.object({
     role: Joi.string().trim()
 
 })
+
+export const changePasswordSchema = Joi.object({
+    oldPassword: Joi.string()
+        .trim()
+        .required()
+        .messages({
+            'string.empty': 'Password không được để trống',
+            'any.required': 'Password là bắt buộc',
+        }),
+    newPassword: Joi.string()
+        .trim()
+        .required()
+        .pattern(new RegExp('^[a-zA-Z0-9!@#$%^&*]{3,30}$'))
+        .invalid(Joi.ref('oldPassword'))
+        .messages({
+            'string.empty': 'Password không được để trống',
+            'any.required': 'Password là bắt buộc',
+        })
+})

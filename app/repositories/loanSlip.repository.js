@@ -130,12 +130,15 @@ class LoanSlipRepository {
         return results;
     }
 
-    async findAll({ page = 1, limit = 10, status, id }) {
+    async findAll({ page = 1, limit = 10, status, id, readerId }) {
         const skip = (page - 1) * limit;
 
         const matchQuery = {};
         if (id) {
-            matchQuery._id = new ObjectId(id);
+            matchQuery._id = ObjectId.isValid(id) ? new ObjectId(id) : null;
+        }
+        if (readerId) {
+            matchQuery.readerId = new ObjectId(readerId);
         }
         if (status) {
             matchQuery.status = status;
@@ -217,6 +220,7 @@ class LoanSlipRepository {
                     preserveNullAndEmptyArrays: true
                 }
             },
+
             {
                 $unset: [
                     "reader.password",
