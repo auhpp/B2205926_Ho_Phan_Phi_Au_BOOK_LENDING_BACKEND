@@ -46,7 +46,10 @@ class BookService {
         var newBook = await this.bookRepository.create(dataToSave);
 
         if (!bookData.id) {
-            await this.bookCopyService.create({ status: BookCopyStatus.AVAILABLE, bookId: newBook._id, quantity: bookData.bookCopyQuantity });
+            await this.bookCopyService.create({
+                status: BookCopyStatus.AVAILABLE, bookId: newBook._id, quantity: bookData.bookCopyQuantity,
+                code: newBook.code
+            });
         }
         return newBook;
     }
