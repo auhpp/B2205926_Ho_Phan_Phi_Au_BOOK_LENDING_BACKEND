@@ -20,7 +20,7 @@ export const update = async (req, res, next) => {
             status: req.body.status,
             loanSlipId: req.params.id,
             staffId: req.body.staffId,
-            currentUser: req.user
+            currentUser: req.user,
         });
         return res.status(200).json(
             new ApiReponse("success", "Update a loan slip success", loanSlip)

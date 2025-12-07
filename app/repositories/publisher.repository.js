@@ -1,5 +1,6 @@
 import { ObjectId } from "mongodb";
 import PageResponse from "../dto/response/page.response.js";
+import { generateCode } from "../utils/code.util.js";
 
 class PublisherRepository {
     constructor(client) {
@@ -26,7 +27,10 @@ class PublisherRepository {
         };
 
         const update = {
-            $set: publisher
+            $set: publisher,
+            $setOnInsert: {
+                code: generateCode("NXB"),
+            }
         }
         const options = {
             upsert: true,

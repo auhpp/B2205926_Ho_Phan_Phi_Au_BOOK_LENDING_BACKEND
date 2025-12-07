@@ -31,9 +31,11 @@ class ReaderService {
         }
         var imageUrl = undefined;
         if (avatar != null) {
-            var start = readerDB.avatar.indexOf("book-lending-project");
-            const public_id = readerDB.avatar.substring(start, readerDB.avatar.lastIndexOf('.'));
-            await deleteFromCloudinary(public_id);
+            if (readerDB.avatar) {
+                var start = readerDB.avatar.indexOf("book-lending-project");
+                const public_id = readerDB.avatar.substring(start, readerDB.avatar.lastIndexOf('.'));
+                await deleteFromCloudinary(public_id);
+            }
 
             imageUrl = await uploadFromBuffer(avatar);
         }

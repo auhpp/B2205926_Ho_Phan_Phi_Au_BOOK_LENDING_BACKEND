@@ -1,5 +1,6 @@
 import { ObjectId } from "mongodb";
 import PageResponse from "../dto/response/page.response.js";
+import { generateCode } from "../utils/code.util.js";
 
 class AuthorRepository {
     constructor(client) {
@@ -25,7 +26,10 @@ class AuthorRepository {
         };
 
         const update = {
-            $set: author
+            $set: author,
+            $setOnInsert: {
+                code: generateCode("TG"),
+            }
         }
         const options = {
             upsert: true,

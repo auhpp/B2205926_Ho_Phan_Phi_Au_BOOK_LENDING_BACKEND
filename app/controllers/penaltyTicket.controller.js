@@ -87,3 +87,21 @@ export const deletePenaltyTicket = async (req, res, next) => {
         return next(error);
     }
 }
+
+
+export const getStats = async (req, res, next) => {
+    try {
+        const penaltyTicketservice = new PenaltyTicketService();
+        const currentUser = req.user;
+
+        const readerId = currentUser.role === Role.ADMIN ? req.query.readerId : currentUser.id;
+
+        const stats = await penaltyTicketservice.getStats(readerId);
+
+        return res.status(200).json(
+            new ApiReponse("success", "Get penalty statistics success", stats)
+        );
+    } catch (error) {
+        return next(error);
+    }
+}
