@@ -1,5 +1,6 @@
 import { ObjectId } from "mongodb";
 import PageResponse from "../dto/response/page.response.js";
+import { generateCode } from "../utils/code.util.js";
 
 class PenaltyTicketRepository {
     constructor(client) {
@@ -32,7 +33,10 @@ class PenaltyTicketRepository {
         };
 
         const update = {
-            $set: penaltyTicket
+            $set: penaltyTicket,
+            $setOnInsert: {
+                code: generateCode("PP"),
+            }
         }
         const options = {
             upsert: true,
@@ -47,9 +51,9 @@ class PenaltyTicketRepository {
     async findPagination({ page = 1, limit = 10, paymentStatus, id, readerId }) {
         const skip = (page - 1) * limit;
         const matchQuery = {};
-        console.log("reader id", readerId)
+        console.log("code", id)
         if (id) {
-            matchQuery._id = new ObjectId(id);
+            matchQuery.code = id;
         }
         if (paymentStatus) {
             matchQuery.paymentStatus = paymentStatus;
@@ -132,8 +136,9 @@ class PenaltyTicketRepository {
                     typePenalty: 1,
                     createdAt: 1,
                     updatedDate: 1,
-
+                    code: 1,
                     loanSlipId: '$loanDetail.loanSlipId',
+                    loanSlipCode: '$loanSlip.loanCode',
 
                     staff: {
                         _id: '$staff._id',
@@ -162,7 +167,9 @@ class PenaltyTicketRepository {
                     }
                 }
             },
-
+            {
+                $sort: { createdAt: -1 }
+            },
             {
                 $facet: {
                     metadata: [{ $count: 'totalItems' }],
@@ -271,8 +278,9 @@ class PenaltyTicketRepository {
                     typePenalty: 1,
                     createdAt: 1,
                     updatedDate: 1,
-
+                    code: 1,
                     loanSlipId: '$loanDetail.loanSlipId',
+                    loanSlipCode: '$loanSlip.loanCode',
 
                     staff: {
                         _id: '$staff._id',
@@ -301,7 +309,8 @@ class PenaltyTicketRepository {
                         _id: '$book._id',
                         name: '$book.name',
                         price: '$book.price',
-                        images: '$book.images'
+                        images: '$book.images',
+                        code: '$book.code',
                     }
                 }
             },
@@ -329,6 +338,78 @@ class PenaltyTicketRepository {
         };
         const result = await this.PenaltyTicket.findOneAndDelete(filter);
         return result;
+    }
+
+    async getStats(readerId) {
+        const matchStage = {};
+
+        if (readerId) {
+            matchStage['loanSlip.readerId'] = new ObjectId(readerId);
+        }
+
+        const pipeline = [
+            {
+                $lookup: {
+                    from: 'THEO_DOI_MUON_SACH',
+                    localField: 'loanDetailId',
+                    foreignField: '_id',
+                    as: 'loanDetail'
+                }
+            },
+            { $unwind: '$loanDetail' }, 
+
+            {
+                $lookup: {
+                    from: 'PHIEU_MUON',
+                    localField: 'loanDetail.loanSlipId',
+                    foreignField: '_id',
+                    as: 'loanSlip'
+                }
+            },
+            { $unwind: '$loanSlip' },
+
+            { $match: matchStage },
+
+            {
+                $group: {
+                    _id: null, 
+
+                    totalCount: { $sum: 1 },
+
+                    unpaidCount: {
+                        $sum: {
+                            $cond: [{ $eq: ["$paymentStatus", "NOT_PAID"] }, 1, 0]
+                        }
+                    },
+
+                    totalUnpaidAmount: {
+                        $sum: {
+                            $cond: [{ $eq: ["$paymentStatus", "NOT_PAID"] }, "$amount", 0]
+                        }
+                    }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    totalCount: 1,
+                    unpaidCount: 1,
+                    totalUnpaidAmount: 1
+                }
+            }
+        ];
+
+        const result = await this.PenaltyTicket.aggregate(pipeline).toArray();
+
+        if (result.length === 0) {
+            return {
+                totalCount: 0,
+                unpaidCount: 0,
+                totalUnpaidAmount: 0
+            };
+        }
+
+        return result[0];
     }
 }
 

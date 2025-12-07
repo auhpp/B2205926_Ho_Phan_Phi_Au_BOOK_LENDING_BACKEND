@@ -1,5 +1,6 @@
 import { ObjectId } from "mongodb";
 import PageResponse from "../dto/response/page.response.js";
+import { generateCode } from "../utils/code.util.js";
 
 class StaffRepository {
     constructor(client) {
@@ -95,7 +96,10 @@ class StaffRepository {
         };
 
         const update = {
-            $set: staff
+            $set: staff,
+            $setOnInsert: {
+                code: generateCode("NV"),
+            }
         }
         const options = {
             upsert: true,

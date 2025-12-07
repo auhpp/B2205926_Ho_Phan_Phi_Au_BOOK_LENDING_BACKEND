@@ -49,6 +49,11 @@ class PenaltyTicketService {
         return penaltyTicket;
     }
 
+    async getStats(readerId) {
+        const stats = await this.penaltyTicketRepository.getStats(readerId);
+        return stats;
+    }
+
 }
 
 export default PenaltyTicketService;

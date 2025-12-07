@@ -1,5 +1,6 @@
 import { ObjectId } from "mongodb";
 import PageResponse from "../dto/response/page.response.js";
+import { generateCode } from "../utils/code.util.js";
 
 class BookRepository {
     constructor(client) {
@@ -30,7 +31,10 @@ class BookRepository {
             _id: _id ? new ObjectId(_id) : new ObjectId()
         };
         const update = {
-            $set: book
+            $set: book,
+            $setOnInsert: {
+                code: generateCode("S"),
+            }
         }
         const options = {
             upsert: true,

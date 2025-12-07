@@ -9,7 +9,7 @@ import authorize from "../middlewares/authorize.middleware.js";
 const router = express.Router();
 
 router.use(authMiddleware);
-
+router.get("/stats", penaltyTicketController.getStats);
 router.route("/")
     .post(authorize('admin'), validate(createPenaltyTicketSchema, "body"), penaltyTicketController.create)
     .get(validate(findAllSchema, "query"), penaltyTicketController.findAll)

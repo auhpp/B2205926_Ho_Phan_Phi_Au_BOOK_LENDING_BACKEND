@@ -1,5 +1,6 @@
 import { ObjectId } from "mongodb";
 import PageResponse from "../dto/response/page.response.js";
+import { generateCode } from "../utils/code.util.js";
 
 class ConfigurationRepository {
     constructor(client) {
@@ -27,7 +28,10 @@ class ConfigurationRepository {
         };
 
         const update = {
-            $set: configuration
+            $set: configuration,
+            $setOnInsert: {
+                code: generateCode("CH"),
+            }
         }
         const options = {
             upsert: true,

@@ -62,11 +62,10 @@ class LoanSlipService {
             }
         }
         const loanSlip = await this.loanSlipRepository.create({
-            borrowedDate: payload.borrowedDate,
-            returnDate: payload.returnDate,
             status: payload.status,
             readerId: payload.readerId,
-            staffId: payload.staffId
+            staffId: payload.staffId,
+            createdAt: new Date()
         });
 
         var loanDetails = [];
@@ -126,13 +125,23 @@ class LoanSlipService {
             }
         }
         else if (role == Role.ADMIN) {
-            const allowedStatuses = [LoanSlipStatus.APPROVED, LoanDetailStatus.BORROWED]
+            const allowedStatuses = [LoanSlipStatus.APPROVED, LoanDetailStatus.BORROWED, LoanSlipStatus.REJECTED]
             if (!allowedStatuses.includes(status)) {
-                throw new ApiError(403, "Invalid status")
+                throw new ApiError(400, "Invalid status")
             }
         }
+
+        var borrowedDate;
+        var returnDate;
+        if (status == LoanDetailStatus.BORROWED) {
+            borrowedDate = new Date();
+            const config = await this.configurationRepository.findByName(Configuration.DEFAULT_BORROW_DAYS)
+            const duration = parseInt(config.value);
+            returnDate = new Date(borrowedDate);
+            returnDate.setDate(returnDate.getDate() + duration)
+        }
         const loanSlipAfter = await this.loanSlipRepository.create({
-            _id: loanSlipId, status: status, staffId: staffId,
+            _id: loanSlipId, status: status, staffId: staffId, borrowedDate: borrowedDate, returnDate: returnDate
         });
         const loanDetailAfters = await this.loanDetailRepository.updateManyByLoanSlipId({ loanSlipId: loanSlipId, status: status });
         var bookCopyStatus = status;

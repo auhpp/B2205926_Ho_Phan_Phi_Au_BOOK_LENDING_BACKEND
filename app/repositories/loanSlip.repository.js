@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb";
 import PageResponse from "../dto/response/page.response.js";
-
+import { generateCode } from "../utils/code.util.js";
 class LoanSlipRepository {
     constructor(client) {
         this.LoanSlip = client.db().collection("PHIEU_MUON");
@@ -14,7 +14,9 @@ class LoanSlipRepository {
             status: payload.status,
             readerId: payload.readerId ? new ObjectId(payload.readerId) : undefined,
             staffId: payload.staffId ? new ObjectId(payload.staffId) : undefined,
-            updatedDate: new Date()
+            updatedDate: new Date(),
+            createdAt: payload.createdAt,
+
         };
 
         Object.keys(loanSlip).forEach(
@@ -32,7 +34,10 @@ class LoanSlipRepository {
         };
 
         const update = {
-            $set: loanSlip
+            $set: loanSlip,
+            $setOnInsert: {
+                loanCode: generateCode("PM"),
+            }
         }
         const options = {
             upsert: true,
@@ -134,8 +139,10 @@ class LoanSlipRepository {
         const skip = (page - 1) * limit;
 
         const matchQuery = {};
+        console.log("code", id)
+
         if (id) {
-            matchQuery._id = ObjectId.isValid(id) ? new ObjectId(id) : null;
+            matchQuery.loanCode = id;
         }
         if (readerId) {
             matchQuery.readerId = new ObjectId(readerId);
@@ -183,8 +190,11 @@ class LoanSlipRepository {
                     returnDate: { $first: "$returnDate" },
                     returnedDate: { $first: "$returnedDate" },
                     updatedDate: { $first: "$updatedDate" },
+                    createdAt: { $first: "$createdAt" },
+
                     staffId: { $first: "$staffId" },
                     status: { $first: "$status" },
+                    loanCode: { $first: "$loanCode" },
                     bookCopies: {
                         $push: {
                             $cond: [
@@ -204,7 +214,7 @@ class LoanSlipRepository {
                 }
             },
             {
-                $sort: { borrowedDate: -1 }
+                $sort: { createdAt: -1 }
             },
             {
                 $lookup: {
@@ -322,6 +332,9 @@ class LoanSlipRepository {
                     updatedDate: { $first: "$updatedDate" },
                     staffId: { $first: "$staffId" },
                     status: { $first: "$status" },
+                    loanCode: { $first: "$loanCode" },
+                    createdAt: { $first: "$createdAt" },
+
                     bookCopies: {
                         $push: {
                             $cond: [
@@ -342,7 +355,7 @@ class LoanSlipRepository {
                 }
             },
             {
-                $sort: { borrowedDate: -1 }
+                $sort: { createdAt: -1 }
             },
             {
                 $lookup: {

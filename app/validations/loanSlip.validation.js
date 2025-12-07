@@ -20,14 +20,6 @@ export const createLoanSlipSchema = Joi.object({
             quantity: Joi.number().integer().min(1).required()
         }))
         .min(1),
-    borrowedDate: Joi.date()
-        .iso()
-        .max('now')
-        .required(),
-    returnDate: Joi.date()
-        .iso()
-        .greater(Joi.ref('borrowedDate'))
-        .required(),
     status: Joi.string().trim().required(),
     staffId: objectIdRule
 })
