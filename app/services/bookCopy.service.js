@@ -1,18 +1,29 @@
 import BookCopyRepository from "../repositories/bookCopy.repository.js";
 import LoanDetailRepository from "../repositories/loanDetail.repository.js";
 import MongoDB from "../utils/mongodb.util.js";
+import BookRepository from "../repositories/book.repository.js";
 
 class BookCopyService {
     constructor() {
         this.bookCopyRepository = new BookCopyRepository(MongoDB.client);
         this.loanDetailRepository = new LoanDetailRepository(MongoDB.client);
+        this.bookRepository = new BookRepository(MongoDB.client);
+
     }
 
     async create(bookCopyRequest) {
         var bookCopies = []
         var bookCopyCount = await this.bookCopyRepository.countByBookId(bookCopyRequest.bookId, null);
+        var code;
+        if (bookCopyRequest.code) {
+            code = bookCopyRequest.code;
+        }
+        else {
+            const book = await this.bookRepository.findById(bookCopyRequest.bookId)
+            code = book.code;
+        }
         for (let i = 0; i < bookCopyRequest.quantity; i++) {
-            var barCode = bookCopyRequest.code + "-" + (bookCopyCount + 1);
+            var barCode = code + "-" + (bookCopyCount + 1);
             bookCopyRequest.barCode = barCode;
             bookCopyCount++;
             bookCopies.push(await this.bookCopyRepository.create(bookCopyRequest));

@@ -179,7 +179,7 @@ const handleUpcomingLoans = async (startOfToday) => {
 const startCronJob = () => {
     // Cấu hình chạy mỗi ngày vào lúc 7:00 sáng
     // Format: Phút | Giờ | Ngày | Tháng | Thứ
-    cron.schedule("16 11 * * *", () => {
+    cron.schedule("27 20 * * *", () => {
         checkAndNotify()
     },
         {

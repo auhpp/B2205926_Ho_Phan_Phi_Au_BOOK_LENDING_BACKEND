@@ -3,7 +3,7 @@ import ReaderRepository from "../repositories/reader.repository.js";
 import StaffRepository from "../repositories/staff.repository.js";
 import MongoDB from "../utils/mongodb.util.js";
 import bcrypt from 'bcrypt';
-import { uploadFromBuffer } from "./cloudinary.service.js";
+import { uploadFromBuffer, deleteFromCloudinary } from "./cloudinary.service.js";
 
 class StaffService {
     constructor() {
@@ -31,6 +31,11 @@ class StaffService {
         }
         var imageUrl = undefined;
         if (avatar != null) {
+            if (staffDB.avatar) {
+                var start = staffDB.avatar.indexOf("book-lending-project");
+                const public_id = staffDB.avatar.substring(start, staffDB.avatar.lastIndexOf('.'));
+                await deleteFromCloudinary(public_id);
+            }
             imageUrl = await uploadFromBuffer(avatar);
         }
         payload.avatar = imageUrl;

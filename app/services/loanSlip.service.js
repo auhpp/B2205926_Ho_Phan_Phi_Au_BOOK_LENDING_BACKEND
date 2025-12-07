@@ -10,7 +10,7 @@ import ConfigurationRepository from "../repositories/configuration.repository.js
 import LoanDetailRepository from "../repositories/loanDetail.repository.js";
 import LoanSlipRepository from "../repositories/loanSlip.repository.js";
 import ReaderRepository from "../repositories/reader.repository.js";
-
+import PenaltyTicketRepository from "../repositories/penaltyTicket.repository.js";
 import MongoDB from "../utils/mongodb.util.js";
 
 class LoanSlipService {
@@ -20,7 +20,8 @@ class LoanSlipService {
         this.configurationRepository = new ConfigurationRepository(MongoDB.client)
         this.loanDetailRepository = new LoanDetailRepository(MongoDB.client);
         this.cartRepository = new BookCartItemRepository(MongoDB.client);
-        this.readerRepository = new ReaderRepository(MongoDB.client)
+        this.readerRepository = new ReaderRepository(MongoDB.client);
+        this.penaltyTicketRepository = new PenaltyTicketRepository(MongoDB.client);
     }
 
     async create(payload) {
@@ -34,6 +35,11 @@ class LoanSlipService {
                 throw new ApiError(400, "Quantity not enough")
 
             }
+        }
+        const unpaidPenalties = await this.penaltyTicketRepository.findUnpaidByReaderId(readerId);
+
+        if (unpaidPenalties && unpaidPenalties.length > 0) {
+            throw new ApiError(400, "Reader has unpaid penalty tickets.");
         }
         const loanSlipFound = await this.loanSlipRepository.findByStatus(readerId, LoanSlipStatus.BORROWED);
         if (loanSlipFound) {

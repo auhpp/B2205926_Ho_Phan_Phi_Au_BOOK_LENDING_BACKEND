@@ -356,7 +356,7 @@ class PenaltyTicketRepository {
                     as: 'loanDetail'
                 }
             },
-            { $unwind: '$loanDetail' }, 
+            { $unwind: '$loanDetail' },
 
             {
                 $lookup: {
@@ -372,7 +372,7 @@ class PenaltyTicketRepository {
 
             {
                 $group: {
-                    _id: null, 
+                    _id: null,
 
                     totalCount: { $sum: 1 },
 
@@ -410,6 +410,63 @@ class PenaltyTicketRepository {
         }
 
         return result[0];
+    }
+
+    async findUnpaidByReaderId(readerId) {
+        if (!ObjectId.isValid(readerId)) {
+            return [];
+        }
+
+        const _readerId = new ObjectId(readerId);
+
+        const pipeline = [
+
+            {
+                $match: {
+                    paymentStatus: { $ne: "PAID" }
+                }
+            },
+
+            {
+                $lookup: {
+                    from: "THEO_DOI_MUON_SACH",
+                    localField: "loanDetailId",
+                    foreignField: "_id",
+                    as: "loanDetail"
+                }
+            },
+            { $unwind: "$loanDetail" },
+
+            {
+                $lookup: {
+                    from: "PHIEU_MUON",
+                    localField: "loanDetail.loanSlipId",
+                    foreignField: "_id",
+                    as: "loanSlip"
+                }
+            },
+            { $unwind: "$loanSlip" },
+
+            {
+                $match: {
+                    "loanSlip.readerId": _readerId
+                }
+            },
+
+            {
+                $project: {
+                    _id: 1,
+                    amount: 1,
+                    typePenalty: 1,
+                    createdAt: 1,
+                    loanSlipCode: "$loanSlip.loanCode",
+                    loanSlipId: "$loanSlip._id"
+                }
+            }
+        ];
+
+
+        return await this.PenaltyTicket.aggregate(pipeline).toArray();
     }
 }
 
